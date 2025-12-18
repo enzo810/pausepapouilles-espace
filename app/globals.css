@@ -1,38 +1,48 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 :root {
-  --background: oklch(0.9839 0.0254 94.7284);
-  --foreground: oklch(0.2558 0.0018 106.5292);
-  --card: oklch(0.976 0.0123 91.5165);
-  --card-foreground: oklch(0.2558 0.0018 106.5292);
-  --popover: oklch(0.976 0.0123 91.5165);
-  --popover-foreground: oklch(0.2558 0.0018 106.5292);
-  --primary: oklch(0.771 0.1531 54.6591);
-  --primary-foreground: oklch(0.2558 0.0018 106.5292);
-  --secondary: oklch(0.916 0.0565 63.57);
-  --secondary-foreground: oklch(0.2558 0.0018 106.5292);
-  --muted: oklch(0.941 0.0156 86.4264);
-  --muted-foreground: oklch(0.4792 0.0102 84.5905);
-  --accent: oklch(0.8788 0.0655 11.4362);
-  --accent-foreground: oklch(0.2558 0.0018 106.5292);
+  --background: oklch(0.985 0.012 70);
+  --foreground: oklch(0.255 0 0);
+
+  --card: oklch(0.99 0.006 70);
+  --card-foreground: oklch(0.255 0 0);
+  --popover: oklch(0.99 0.006 70);
+  --popover-foreground: oklch(0.255 0 0);
+
+  --primary: oklch(0.77 0.15 55);
+  --primary-foreground: oklch(0.255 0 0);
+  --secondary: oklch(0.93 0.045 55);
+  --secondary-foreground: oklch(0.255 0 0);
+
+  --muted: oklch(0.95 0.02 70);
+  --muted-foreground: oklch(0.45 0 0);
+
+  --accent: oklch(0.88 0.08 15);
+  --accent-foreground: oklch(0.255 0 0);
+
   --destructive: oklch(0.6069 0.2083 30.5626);
   --destructive-foreground: oklch(0.9851 0 0);
-  --border: oklch(0.8849 0.0097 93.5801);
-  --input: oklch(0.8849 0.0097 93.5801);
-  --ring: oklch(0.771 0.1531 54.6591);
-  --chart-1: oklch(0.771 0.1531 54.6591);
-  --chart-2: oklch(0.6069 0.2083 30.5626);
-  --chart-3: oklch(0.9148 0.132 96.6705);
-  --chart-4: oklch(0.3516 0.0783 41.9755);
-  --chart-5: oklch(0.2558 0.0018 106.5292);
-  --sidebar: oklch(0.9558 0.0168 87.9993);
-  --sidebar-foreground: oklch(0.2558 0.0018 106.5292);
-  --sidebar-primary: oklch(0.771 0.1531 54.6591);
-  --sidebar-primary-foreground: oklch(0.2558 0.0018 106.5292);
-  --sidebar-accent: oklch(0.8788 0.0655 11.4362);
-  --sidebar-accent-foreground: oklch(0.2558 0.0018 106.5292);
-  --sidebar-border: oklch(0.8849 0.0097 93.5801);
-  --sidebar-ring: oklch(0.771 0.1531 54.6591);
+
+  --border: oklch(0.9 0.01 70);
+  --input: oklch(0.9 0.01 70);
+  --ring: oklch(0.77 0.15 55);
+
+  --chart-1: oklch(0.77 0.15 55);
+  --chart-2: oklch(0.7 0.12 40);
+  --chart-3: oklch(0.82 0.1 75);
+  --chart-4: oklch(0.65 0.12 30);
+  --chart-5: oklch(0.55 0.08 20);
+
+  --sidebar: oklch(0.985 0.012 70);
+  --sidebar-foreground: oklch(0.255 0 0);
+  --sidebar-primary: oklch(0.77 0.15 55);
+  --sidebar-primary-foreground: oklch(0.255 0 0);
+  --sidebar-accent: oklch(0.88 0.08 15);
+  --sidebar-accent-foreground: oklch(0.255 0 0);
+  --sidebar-border: oklch(0.9 0.01 70);
+  --sidebar-ring: oklch(0.77 0.15 55);
+
   --font-sans:
     ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif,
@@ -41,13 +51,16 @@
   --font-mono:
     ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
     "Courier New", monospace;
+
   --radius: 0.625rem;
+
   --shadow-x: 0;
   --shadow-y: 1px;
   --shadow-blur: 3px;
   --shadow-spread: 0px;
   --shadow-opacity: 0.1;
-  --shadow-color: #000000;
+  --shadow-color: oklch(0 0 0);
+
   --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
   --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
   --shadow-sm:
@@ -60,6 +73,7 @@
   --shadow-xl:
     0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
   --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
+
   --tracking-normal: -0.05em;
   --spacing: 0.25rem;
 }
@@ -122,11 +136,19 @@
   --tracking-wide: calc(var(--tracking-normal) + 0.025em);
   --tracking-wider: calc(var(--tracking-normal) + 0.05em);
   --tracking-widest: calc(var(--tracking-normal) + 0.1em);
+
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
 }
 
-body {
-  letter-spacing: var(--tracking-normal);
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans);
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    letter-spacing: var(--tracking-normal);
+    font-family: var(--font-sans);
+  }
 }
