@@ -21,6 +21,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { signUp } from "@/lib/auth-client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -149,11 +150,11 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
 
               <Field>
                 <Button type="submit">Valider</Button>
-                <Button variant="outline" type="button">
-                  Créer un compte avec Google
-                </Button>
                 <FieldDescription className="text-center">
-                  Already have an account? <a href="/signin">Sign in</a>
+                  Already have an account ?
+                  <Link href="/signin" className="text-indigo-500 text-sm ml-2">
+                    Sign in
+                  </Link>
                 </FieldDescription>
               </Field>
             </FieldGroup>

@@ -1,4 +1,5 @@
 import { Header } from "@/components/header";
+import PageLayout from "@/components/page-layout";
 import { getSession } from "@/lib/auth-server";
 import { redirect } from "next/navigation";
 
@@ -16,7 +17,7 @@ export default async function ProtectedLayout({
   return (
     <div>
       <Header user={session.user} />
-      {children}
+      <PageLayout>{children}</PageLayout>
     </div>
   );
 }

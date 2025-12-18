@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { signIn } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -105,7 +106,17 @@ export function SigninForm({
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Mot de passe</FormLabel>
+                      <div className="flex items-center gap-2">
+                        <FormLabel className="flex-1">Mot de passe</FormLabel>
+                        <FieldDescription>
+                          <Link
+                            href="/forget-password"
+                            className="text-indigo-500 text-sm ml-2"
+                          >
+                            Mot de passe oublié ?
+                          </Link>
+                        </FieldDescription>
+                      </div>
                       <FormControl>
                         <Input type="password" {...field} />
                       </FormControl>
@@ -119,11 +130,11 @@ export function SigninForm({
               </FieldGroup>
               <Field>
                 <Button type="submit">Login</Button>
-                <Button variant="outline" type="button">
-                  Login with Google
-                </Button>
                 <FieldDescription className="text-center">
-                  Don&apos;t have an account? <a href="/signup">Sign up</a>
+                  Don&apos;t have an account ?{" "}
+                  <Link href="/signup" className="text-indigo-500 text-sm ml-2">
+                    Sign up
+                  </Link>
                 </FieldDescription>
               </Field>
             </form>

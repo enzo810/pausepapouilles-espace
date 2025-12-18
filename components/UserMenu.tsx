@@ -1,5 +1,5 @@
 import { auth } from "@/lib/auth";
-import { LogOut } from "lucide-react";
+import { LogOut, User2 } from "lucide-react";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { Avatar, AvatarFallback } from "./ui/avatar";
@@ -11,8 +11,9 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { User } from "better-auth";
+import Link from "next/link";
 
-export default function SignoutButton({ user }: { user: User }) {
+export default function UserMenu({ user }: { user: User }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -24,7 +25,13 @@ export default function SignoutButton({ user }: { user: User }) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/profile" className="flex items-center gap-2">
+            <User2 className="size-4" />
+            Profile
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
           <form>
             <button
               className="flex items-center gap-2 w-full"
