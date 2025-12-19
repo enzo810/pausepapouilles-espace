@@ -24,7 +24,6 @@ import { UpdatePasswordForm } from "@/components/update-password-form";
 export default function UserProfilePage() {
   const { data: session } = useSession();
 
-  const [openEmail, setOpenEmail] = useState(false);
   const [openPassword, setOpenPassword] = useState(false);
 
   return (
@@ -45,7 +44,7 @@ export default function UserProfilePage() {
           </CardContent>
 
           <CardFooter className="flex-col gap-2">
-            <Dialog open={openEmail} onOpenChange={setOpenEmail}>
+            <Dialog>
               <DialogTrigger asChild>
                 <Button type="button" variant="secondary" className="w-full">
                   Modifier l&apos;email
@@ -57,7 +56,7 @@ export default function UserProfilePage() {
                   <DialogTitle>Modifier l’email</DialogTitle>
                 </DialogHeader>
 
-                <UpdateEmailForm setOpen={setOpenEmail} />
+                <UpdateEmailForm />
               </DialogContent>
             </Dialog>
 

@@ -22,18 +22,19 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
-import { toast } from "sonner";
+import { CheckCircle2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 
 const formSchema = z.object({
   email: z.email(),
 });
 
-export function UpdateEmailForm({
-  setOpen,
-}: {
-  setOpen?: (open: boolean) => void;
-}) {
+export function UpdateEmailForm() {
+  const [displayAlert, setDisplayAlert] = useState<boolean>(false);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -50,12 +51,13 @@ export function UpdateEmailForm({
       },
       {
         onSuccess: () => {
-          toast.success("Email updated");
           router.refresh();
-          setOpen?.(false);
+          toast.success("Opération réussie");
+          setDisplayAlert(true);
         },
         onError: (error) => {
           toast.error(error.error.message);
+          setDisplayAlert(false);
         },
       },
     );
@@ -89,10 +91,21 @@ export function UpdateEmailForm({
             />
           </CardContent>
 
-          <CardFooter>
+          <CardFooter className="flex flex-col gap-6">
             <Button type="submit" className="w-full">
               Enregistrer
             </Button>
+            {displayAlert && (
+              <Alert variant="borderless" className="p-0">
+                <CheckCircle2Icon />
+                <AlertTitle>Opération réussie</AlertTitle>
+                <AlertDescription>
+                  Un email de confirmation a été envoyé à l&apos;ancien email.
+                  Une fois validé, un email de confirmation sera envoyé au
+                  nouvel email.
+                </AlertDescription>
+              </Alert>
+            )}
           </CardFooter>
         </form>
       </Form>
