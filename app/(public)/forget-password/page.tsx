@@ -26,7 +26,7 @@ export default function ForgetPasswordPage() {
       },
       {
         onSuccess: () => {
-          router.push(`/verify?email=${email}`);
+          router.push(`/verify-email?email=${email}`);
           router.refresh();
         },
         onError: (error) => {
