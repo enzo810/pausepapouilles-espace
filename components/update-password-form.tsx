@@ -65,7 +65,7 @@ export function UpdatePasswordForm({
       },
       {
         onSuccess: () => {
-          toast.success("Password updated");
+          toast.success("Mot de passe mis à jour");
           setOpen?.(false);
         },
         onError: (error) => {

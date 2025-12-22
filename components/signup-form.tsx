@@ -151,9 +151,9 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
               <Field>
                 <Button type="submit">Valider</Button>
                 <FieldDescription className="text-center">
-                  Already have an account ?
+                  Vous avez déjà un compte ?
                   <Link href="/signin" className="text-indigo-500 text-sm ml-2">
-                    Sign in
+                    Se connecter
                   </Link>
                 </FieldDescription>
               </Field>

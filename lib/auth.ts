@@ -1,5 +1,7 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
+import { admin as adminPlugin } from "better-auth/plugins";
+import { CLIENT, PET_SITTER } from "./permissions";
 import prismaPublic from "./prisma";
 import { resend } from "./resend";
 
@@ -43,4 +45,14 @@ export const auth = betterAuth({
       });
     },
   },
+  plugins: [
+    adminPlugin({
+      defaultRole: "CLIENT",
+      roles: {
+        CLIENT,
+        PET_SITTER,
+      },
+      adminRoles: ["PET_SITTER"],
+    }),
+  ],
 });

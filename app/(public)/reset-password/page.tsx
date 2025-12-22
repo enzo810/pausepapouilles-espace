@@ -21,7 +21,7 @@ export default function ResetPasswordPage() {
   const token = searchParams.get("token");
 
   if (!token) {
-    toast.error("Invalid token");
+    toast.error("Token invalide");
     return;
   }
 
@@ -35,7 +35,7 @@ export default function ResetPasswordPage() {
       {
         onSuccess: () => {
           router.push(`/signin`);
-          toast.success("Password reset please sign in");
+          toast.success("Mot de passe réinitialisé, veuillez vous connecter");
         },
         onError: (error) => {
           toast.error(error.error.message);
@@ -47,18 +47,18 @@ export default function ResetPasswordPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Reset Password</CardTitle>
+        <CardTitle>Réinitialiser le mot de passe</CardTitle>
         <CardDescription className="text-sm text-muted-foreground mt-1">
-          Enter your new password below.
+          Entrez votre nouveau mot de passe ci-dessous.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form className="flex flex-col gap-4" action={onSubmit}>
           <div className="space-y-2">
-            <Label htmlFor="password">New Password</Label>
+            <Label htmlFor="password">Nouveau mot de passe</Label>
             <Input type="password" id="password" name="password" />
           </div>
-          <Button type="submit">Reset Password</Button>
+          <Button type="submit">Réinitialiser le mot de passe</Button>
         </form>
       </CardContent>
     </Card>

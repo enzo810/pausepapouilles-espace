@@ -14,11 +14,12 @@ export default async function VerifyPage(props: {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Important: Check your email</CardTitle>
+        <CardTitle>Important : Vérifiez votre email</CardTitle>
         {email ? (
           <CardDescription>
-            We&apos;ve sent you a verification email to {email}. Please check
-            your email and click the link to verify your account.
+            Nous vous avons envoyé un email de vérification à {email}. Veuillez
+            vérifier votre email et cliquer sur le lien pour vérifier votre
+            compte.
           </CardDescription>
         ) : null}
       </CardHeader>

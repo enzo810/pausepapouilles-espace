@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import Logo from "./logo";
 
 type AuthPageLayoutProps = {
   children: React.ReactNode;
@@ -12,10 +13,13 @@ export default function AuthPageLayout({
     <div
       {...props}
       className={cn(
-        "flex min-h-svh w-full items-center justify-center p-6 md:p-10",
+        "flex min-h-svh w-full flex-col items-center justify-center p-6 md:p-10",
         props.className,
       )}
     >
+      <div className="mb-4">
+        <Logo className="w-32" />
+      </div>
       <div className="w-full max-w-sm">{children}</div>
     </div>
   );

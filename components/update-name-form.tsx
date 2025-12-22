@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   name: z.string().min(3, "Le nom doit faire au moins 3 caractères"),
@@ -27,6 +28,8 @@ export function UpdateNameForm({
   defaultValue: string;
   className?: string;
 }) {
+  const router = useRouter();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -43,6 +46,7 @@ export function UpdateNameForm({
         {
           onSuccess: () => {
             toast.success("Nom mis à jour");
+            router.refresh();
           },
           onError: (error) => {
             toast.error(error.error.message);
