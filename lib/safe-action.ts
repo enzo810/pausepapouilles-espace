@@ -2,13 +2,13 @@ import { createSafeActionClient } from "next-safe-action";
 import { headers } from "next/headers";
 import { auth } from "./auth";
 
-export const actionClient = createSafeActionClient();
-
 class ActionError extends Error {}
 
-export const publicAction = createSafeActionClient();
+export const publicAction = createSafeActionClient().use(async ({ next }) => {
+  return await next({ ctx: { ActionError } });
+});
 
-export const authAction = publicAction.use(async ({ next }) => {
+export const authAction = publicAction.use(async ({ next, ctx }) => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });

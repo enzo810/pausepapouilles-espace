@@ -19,8 +19,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { signUp } from "@/lib/auth-client";
+import { signIn } from "@/lib/auth-client";
+import { CreateUserFormSchema } from "@/schemas/UserFormSchema";
+import { signup } from "@/server/actions/user.action";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -28,15 +31,9 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
-  const SignupFormSchema = z.object({
-    firstname: z.string(),
-    lastname: z.string(),
-    email: z.string(),
-    password: z.string(),
-  });
-
-  const form = useForm<z.infer<typeof SignupFormSchema>>({
-    resolver: zodResolver(SignupFormSchema),
+  const router = useRouter();
+  const form = useForm<z.infer<typeof CreateUserFormSchema>>({
+    resolver: zodResolver(CreateUserFormSchema),
     defaultValues: {
       firstname: "",
       lastname: "",
@@ -45,25 +42,37 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
     },
   });
 
-  const router = useRouter();
+  const { mutateAsync: mutateSignUp, isPending: isPendingSignUp } = useMutation(
+    {
+      mutationFn: signup,
+      onSuccess: async (data, variables) => {
+        if (data?.data?.status === 200) {
+          toast.success(data?.data?.message);
+          await signIn.email(
+            {
+              email: variables.email,
+              password: variables.password,
+            },
+            {
+              onSuccess: () => {
+                router.push("/");
+                router.refresh();
+              },
+              onError: (error) => {
+                toast.error(error.error.message);
+              },
+            },
+          );
+        }
+        if (data?.serverError) {
+          toast.error(data.serverError);
+        }
+      },
+    },
+  );
 
-  async function onSubmit(values: z.infer<typeof SignupFormSchema>) {
-    await signUp.email(
-      {
-        email: values.email,
-        name: `${values.firstname} ${values.lastname}`,
-        password: values.password,
-      },
-      {
-        onSuccess: () => {
-          router.push("/");
-          router.refresh();
-        },
-        onError: (error) => {
-          toast.error(error.error.message);
-        },
-      },
-    );
+  async function onSubmit(values: z.infer<typeof CreateUserFormSchema>) {
+    mutateSignUp(values);
   }
 
   return (
