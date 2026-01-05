@@ -25,7 +25,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import z from "zod";
+import { z } from "zod";
 import { Button } from "./ui/button";
 
 export function SigninForm({
@@ -73,9 +73,9 @@ export function SigninForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle>Login to your account</CardTitle>
+          <CardTitle>Connectez-vous à votre compte</CardTitle>
           <CardDescription>
-            Enter your email below to login to your account
+            Entrez votre email ci-dessous pour vous connecter à votre compte
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -129,11 +129,11 @@ export function SigninForm({
                 />
               </FieldGroup>
               <Field>
-                <Button type="submit">Login</Button>
+                <Button type="submit">Se connecter</Button>
                 <FieldDescription className="text-center">
-                  Don&apos;t have an account ?{" "}
+                  Vous n&apos;avez pas de compte ?{" "}
                   <Link href="/signup" className="text-indigo-500 text-sm ml-2">
-                    Sign up
+                    S&apos;inscrire
                   </Link>
                 </FieldDescription>
               </Field>

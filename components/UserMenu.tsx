@@ -28,7 +28,7 @@ export default function UserMenu({ user }: { user: User }) {
         <DropdownMenuItem asChild>
           <Link href="/profile" className="flex items-center gap-2">
             <User2 className="size-4" />
-            Profile
+            Profil
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
@@ -44,7 +44,7 @@ export default function UserMenu({ user }: { user: User }) {
               }}
             >
               <LogOut className="size-4" />
-              Logout
+              Déconnexion
             </button>
           </form>
         </DropdownMenuItem>

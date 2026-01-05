@@ -1,9 +1,12 @@
-import { betterAuth } from "better-auth";
+import { betterAuth, BetterAuthOptions } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
+import { admin as adminPlugin, customSession } from "better-auth/plugins";
+import { CLIENT, PET_SITTER } from "./permissions";
 import prismaPublic from "./prisma";
 import { resend } from "./resend";
+import { extendUser } from "./session-manager";
 
-export const auth = betterAuth({
+const options = {
   database: prismaAdapter(prismaPublic, {
     provider: "postgresql",
   }),
@@ -43,4 +46,31 @@ export const auth = betterAuth({
       });
     },
   },
+  plugins: [
+    adminPlugin({
+      defaultRole: "CLIENT",
+      roles: {
+        CLIENT,
+        PET_SITTER,
+      },
+      adminRoles: ["PET_SITTER"],
+    }),
+  ],
+} satisfies BetterAuthOptions;
+
+export const auth = betterAuth({
+  ...options,
+  plugins: [
+    ...(options.plugins ?? []),
+    customSession(async ({ user, session }) => {
+      const extendedUser = await extendUser(user.id);
+      return {
+        ...session,
+        user: {
+          ...user,
+          ...extendedUser,
+        },
+      };
+    }, options),
+  ],
 });

@@ -11,23 +11,30 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
-export default function ForgetPasswordPage() {
+export function ResetPasswordForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token");
+
+  if (!token) {
+    toast.error("Token invalide");
+    return null;
+  }
 
   async function onSubmit(formData: FormData) {
-    const email = formData.get("email");
-    await authClient.requestPasswordReset(
+    const password = formData.get("password");
+    await authClient.resetPassword(
       {
-        email: String(email),
-        redirectTo: "/reset-password",
+        newPassword: String(password),
+        token: String(token),
       },
       {
         onSuccess: () => {
-          router.push(`/verify-email?email=${email}`);
-          router.refresh();
+          router.push(`/signin`);
+          toast.success("Mot de passe réinitialisé, veuillez vous connecter");
         },
         onError: (error) => {
           toast.error(error.error.message);
@@ -39,17 +46,16 @@ export default function ForgetPasswordPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Mot de passe oublié</CardTitle>
+        <CardTitle>Réinitialiser le mot de passe</CardTitle>
         <CardDescription className="text-sm text-muted-foreground mt-1">
-          Entrez votre adresse email ci-dessous et nous vous enverrons les
-          instructions pour réinitialiser votre mot de passe.
+          Entrez votre nouveau mot de passe ci-dessous.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form className="flex flex-col gap-4" action={onSubmit}>
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input type="email" id="email" name="email" />
+            <Label htmlFor="password">Nouveau mot de passe</Label>
+            <Input type="password" id="password" name="password" />
           </div>
           <Button type="submit">Réinitialiser le mot de passe</Button>
         </form>

@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
+import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -65,7 +65,7 @@ export function UpdatePasswordForm({
       },
       {
         onSuccess: () => {
-          toast.success("Password updated");
+          toast.success("Mot de passe mis à jour");
           setOpen?.(false);
         },
         onError: (error) => {
