@@ -6,7 +6,7 @@ type PageLayoutProps = {
 
 export default function PageLayout({ children, ...props }: PageLayoutProps) {
   return (
-    <div {...props} className={cn("p-6", props.className)}>
+    <div {...props} className={cn("p-20", props.className)}>
       {children}
     </div>
   );

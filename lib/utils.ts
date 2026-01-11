@@ -1,25 +1,29 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { assessmentValues, genderValues, speciesValues } from "./constants";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function displaySpeciesValues(value: "DOG" | "CAT" | "OTHER"): string {
+export function displaySpeciesValues(
+  value: (typeof speciesValues)[number],
+  otherSpecies: string | null,
+): string {
   switch (value) {
     case "DOG":
       return "Chien";
     case "CAT":
       return "Chat";
     case "OTHER":
-      return "Autre";
+      return otherSpecies || "Autre";
     default:
       return value;
   }
 }
 
 export function displayAssessmentValues(
-  value: "GOOD" | "MIXED" | "DIFFICULT",
+  value: (typeof assessmentValues)[number],
 ): string {
   switch (value) {
     case "GOOD":
@@ -33,7 +37,9 @@ export function displayAssessmentValues(
   }
 }
 
-export function displayGenderValues(value: "MALE" | "FEMALE"): string {
+export function displayGenderValues(
+  value: (typeof genderValues)[number],
+): string {
   switch (value) {
     case "MALE":
       return "Mâle";

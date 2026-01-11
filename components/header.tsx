@@ -28,7 +28,7 @@ export const Header = ({ user }: { user: User }) => {
               asChild
               className={navigationMenuTriggerStyle()}
             >
-              <Link href="/">Animaux</Link>
+              <Link href="/animal">Animaux</Link>
             </NavigationMenuLink>
           </NavigationMenuItem>
           <NavigationMenuItem>
