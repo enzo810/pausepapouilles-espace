@@ -16,7 +16,7 @@ enum Gender {
 }
 
 model Animal {
-  id                 String              @id
+  id                 String              @id @default(cuid())
   name               String
   image              String?
   age                Int
@@ -40,12 +40,16 @@ model Animal {
   additionalNotes    String
   userId             String
   user               User                @relation(fields: [userId], references: [id])
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
 }
 
 model AnimalTemperament {
-  id      String   @id
+  id      String   @id @default(cuid())
   name    String
   userId  String
   user    User     @relation(fields: [userId], references: [id])
   animals Animal[]
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
 }
