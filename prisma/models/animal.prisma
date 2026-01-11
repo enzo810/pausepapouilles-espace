@@ -1,0 +1,51 @@
+enum Species {
+  DOG
+  CAT
+  OTHER
+}
+
+enum Assessment {
+  GOOD
+  MIXED
+  DIFFICULT
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+model Animal {
+  id                 String              @id
+  name               String
+  image              String?
+  age                Int
+  gender             Gender
+  species            Species
+  otherSpecies       String?
+  type               String
+  isIdentified       Boolean
+  diet               String
+  treatsAllowed      Boolean
+  animalTemperaments AnimalTemperament[]
+  temperamentNotes   String
+  childFriendly      Assessment
+  dogFriendly        Assessment
+  trafficTolerance   Assessment
+  socializationNotes String
+  fears              String
+  sensitiveAreas     String
+  healthIssues       Boolean
+  careInstructions   String
+  additionalNotes    String
+  userId             String
+  user               User                @relation(fields: [userId], references: [id])
+}
+
+model AnimalTemperament {
+  id      String   @id
+  name    String
+  userId  String
+  user    User     @relation(fields: [userId], references: [id])
+  animals Animal[]
+}
