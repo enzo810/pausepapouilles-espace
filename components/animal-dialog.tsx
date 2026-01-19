@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import { AnimalForm } from "@/components/animal-form";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -9,30 +7,71 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus } from "lucide-react";
+import { AnimalType } from "@/types/AnimalTypes";
+import { ArrowLeft, Pencil } from "lucide-react";
+import { useState } from "react";
+import { Animal } from "./animal";
+import { AnimalForm } from "./animal-form";
 
-export function AnimalDialog() {
-  const [open, setOpen] = useState(false);
+interface AnimalDialogProps {
+  animal: AnimalType;
+  open: boolean;
+  setOpen: (open: boolean) => void;
+}
+
+export function AnimalDialog({
+  animal,
+  open = false,
+  setOpen,
+}: AnimalDialogProps) {
+  const [isEditing, setIsEditing] = useState(false);
+
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen);
+    if (!newOpen) {
+      setIsEditing(false);
+    }
+  };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <Plus className="mr-2 size-4" />
-          Ajouter un animal
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Ajouter un animal</DialogTitle>
+          <DialogTitle>{animal.name}</DialogTitle>
           <DialogDescription>
-            Remplissez le formulaire ci-dessous pour ajouter un nouvel animal à
-            votre profil.
+            {isEditing
+              ? "Modifier les informations de votre animal"
+              : "Informations de votre animal"}
           </DialogDescription>
         </DialogHeader>
-        <AnimalForm setOpen={setOpen} />
+
+        {isEditing ? (
+          <>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsEditing(false)}
+              className="w-fit"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Retour
+            </Button>
+            <AnimalForm setOpen={setOpen} animal={animal} />
+          </>
+        ) : (
+          <>
+            <Button
+              variant="outline"
+              onClick={() => setIsEditing(true)}
+              className="w-fit"
+            >
+              <Pencil className="h-4 w-4 mr-2" />
+              Modifier les informations
+            </Button>
+            <Animal animal={animal} />
+          </>
+        )}
       </DialogContent>
     </Dialog>
   );

@@ -29,7 +29,8 @@ import {
   displaySpeciesValues,
 } from "@/lib/utils";
 import { CreateAnimalFormSchema } from "@/schemas/AnimalFormSchema";
-import { createAnimal } from "@/server/actions/animal.action";
+import { createAnimal, updateAnimal } from "@/server/actions/animal.action";
+import { AnimalType } from "@/types/AnimalTypes";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
@@ -37,57 +38,107 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-export function AnimalForm({
-  setOpen,
-}: {
+interface AnimalFormProps {
   setOpen?: (open: boolean) => void;
-} = {}) {
+  animal?: AnimalType;
+}
+
+export function AnimalForm({ setOpen, animal }: AnimalFormProps = {}) {
   const router = useRouter();
+  const isEditMode = !!animal;
+
   const form = useForm<z.infer<typeof CreateAnimalFormSchema>>({
     resolver: zodResolver(CreateAnimalFormSchema),
-    defaultValues: {
-      name: "",
-      age: 0,
-      gender: "MALE",
-      species: "DOG",
-      otherSpecies: "",
-      type: "",
-      isIdentified: false,
-      diet: "",
-      treatsAllowed: false,
-      temperamentNotes: "",
-      childFriendly: "GOOD",
-      dogFriendly: "GOOD",
-      trafficTolerance: "GOOD",
-      socializationNotes: "",
-      fears: "",
-      sensitiveAreas: "",
-      healthIssues: false,
-      careInstructions: "",
-      additionalNotes: "",
-    },
+    defaultValues: animal
+      ? {
+          name: animal.name,
+          age: animal.age,
+          gender: animal.gender,
+          species: animal.species,
+          otherSpecies: animal.otherSpecies ?? "",
+          type: animal.type,
+          isIdentified: animal.isIdentified,
+          diet: animal.diet,
+          treatsAllowed: animal.treatsAllowed,
+          temperamentNotes: animal.temperamentNotes,
+          childFriendly: animal.childFriendly,
+          dogFriendly: animal.dogFriendly,
+          trafficTolerance: animal.trafficTolerance,
+          socializationNotes: animal.socializationNotes,
+          fears: animal.fears,
+          sensitiveAreas: animal.sensitiveAreas,
+          healthIssues: animal.healthIssues,
+          careInstructions: animal.careInstructions,
+          additionalNotes: animal.additionalNotes,
+        }
+      : {
+          name: "",
+          age: 0,
+          gender: "MALE",
+          species: "DOG",
+          otherSpecies: "",
+          type: "",
+          isIdentified: false,
+          diet: "",
+          treatsAllowed: false,
+          temperamentNotes: "",
+          childFriendly: "GOOD",
+          dogFriendly: "GOOD",
+          trafficTolerance: "GOOD",
+          socializationNotes: "",
+          fears: "",
+          sensitiveAreas: "",
+          healthIssues: false,
+          careInstructions: "",
+          additionalNotes: "",
+        },
   });
 
-  const { mutateAsync: mutateCreateAnimal, isPending } = useMutation({
-    mutationFn: createAnimal,
-    onSuccess: async (data) => {
-      if (data?.data?.status === 200) {
-        toast.success(data?.data?.message);
-        form.reset();
-        router.refresh();
-        setOpen?.(false);
-      }
-      if (data?.serverError) {
-        toast.error(data.serverError);
-      }
-    },
-    onError: (error) => {
-      toast.error(error.message || "Une erreur est survenue");
-    },
-  });
+  const { mutateAsync: mutateCreateAnimal, isPending: isCreating } =
+    useMutation({
+      mutationFn: createAnimal,
+      onSuccess: async (data) => {
+        if (data?.data?.status === 200) {
+          toast.success(data?.data?.message);
+          form.reset();
+          router.refresh();
+          setOpen?.(false);
+        }
+        if (data?.serverError) {
+          toast.error(data.serverError);
+        }
+      },
+      onError: (error) => {
+        toast.error(error.message || "Une erreur est survenue");
+      },
+    });
+
+  const { mutateAsync: mutateUpdateAnimal, isPending: isUpdating } =
+    useMutation({
+      mutationFn: updateAnimal,
+      onSuccess: async (data) => {
+        if (data?.data?.status === 200) {
+          toast.success(data?.data?.message);
+          router.refresh();
+          setOpen?.(false);
+        }
+        if (data?.serverError) {
+          toast.error(data.serverError);
+        }
+      },
+      onError: (error) => {
+        toast.error(error.message || "Une erreur est survenue");
+      },
+    });
+
+  const isPending = isCreating || isUpdating;
 
   async function onSubmit(values: z.infer<typeof CreateAnimalFormSchema>) {
-    await mutateCreateAnimal(values);
+    if (isEditMode && animal) {
+      await mutateUpdateAnimal({ ...values, id: animal.id });
+    } else {
+      await mutateCreateAnimal(values);
+    }
   }
 
   const species = form.watch("species");
@@ -478,7 +529,13 @@ export function AnimalForm({
 
           <Field>
             <Button type="submit" disabled={isPending}>
-              {isPending ? "Création..." : "Créer l'animal"}
+              {isPending
+                ? isEditMode
+                  ? "Mise à jour..."
+                  : "Création..."
+                : isEditMode
+                  ? "Mettre à jour"
+                  : "Créer l'animal"}
             </Button>
             <FieldDescription className="text-center">
               Tous les champs sont obligatoires

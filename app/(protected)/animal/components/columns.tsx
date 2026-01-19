@@ -1,15 +1,18 @@
 "use client";
 
+import { AnimalDialog } from "@/components/animal-dialog";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
-import { Animal } from "@/generated/prisma/client";
+import { Button } from "@/components/ui/button";
 import {
   displayAssessmentValues,
   displayGenderValues,
   displaySpeciesValues,
 } from "@/lib/utils";
+import { AnimalType } from "@/types/AnimalTypes";
 import { ColumnDef } from "@tanstack/react-table";
+import { Eye } from "lucide-react";
 
-export const columns: ColumnDef<Animal>[] = [
+export const columns: ColumnDef<AnimalType>[] = [
   {
     accessorKey: "name",
     header: ({ column }) => (
@@ -96,6 +99,24 @@ export const columns: ColumnDef<Animal>[] = [
     ),
     cell: ({ row }) => {
       return row.getValue("healthIssues") ? "Oui" : "Non";
+    },
+  },
+  {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => {
+      const animal = row.original;
+      return (
+        <AnimalDialog
+          animal={animal}
+          trigger={
+            <Button variant="ghost" size="sm">
+              <Eye className="h-4 w-4 mr-2" />
+              Voir
+            </Button>
+          }
+        />
+      );
     },
   },
 ];

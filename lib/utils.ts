@@ -8,7 +8,7 @@ export function cn(...inputs: ClassValue[]) {
 
 export function displaySpeciesValues(
   value: (typeof speciesValues)[number],
-  otherSpecies: string | null,
+  otherSpecies?: string,
 ): string {
   switch (value) {
     case "DOG":

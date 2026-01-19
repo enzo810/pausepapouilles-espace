@@ -1,4 +1,4 @@
-import { AnimalDialog } from "@/components/animal-dialog";
+import { CreateAnimalDialog } from "@/components/create-animal-dialog";
 import { DataTable } from "@/components/data-table/data-table";
 import { getAnimals } from "@/server/actions/animal.action";
 import { columns } from "./components/columns";
@@ -9,10 +9,8 @@ export default async function AnimalPage() {
 
   return (
     <>
-      <AnimalDialog />
-      <div className="mt-6">
-        <DataTable columns={columns} data={animals} />
-      </div>
+      <CreateAnimalDialog />
+      <DataTable columns={columns} data={animals} type="animal" />
     </>
   );
 }
