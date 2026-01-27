@@ -18,38 +18,36 @@ enum Gender {
 model Animal {
   id                 String              @id @default(cuid())
   name               String
-  image              String?
-  age                Int
+  imageUrl           String?
+  age                Int?
+  birthDate          DateTime?
   gender             Gender
   species            Species
   otherSpecies       String?
-  type               String
-  isIdentified       Boolean
-  diet               String
-  treatsAllowed      Boolean
-  animalTemperaments AnimalTemperament[]
-  temperamentNotes   String
-  childFriendly      Assessment
-  dogFriendly        Assessment
-  trafficTolerance   Assessment
-  socializationNotes String
-  fears              String
-  sensitiveAreas     String
-  healthIssues       Boolean
-  careInstructions   String
-  additionalNotes    String
+  type               String?
+  isIdentified       Boolean?
+  diet               String?
+  treatsAllowed      Boolean?
+  temperamentNotes   String?
+  childFriendly      Assessment?
+  dogFriendly        Assessment?
+  trafficTolerance   Assessment?
+  socializationNotes String?
+  fears              String?
+  sensitiveAreas     String?
+  healthIssues       Boolean?
+  careInstructions   String?
+  additionalNotes    String?
   userId             String
   user               User                @relation(fields: [userId], references: [id])
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
 }
 
-model AnimalTemperament {
-  id      String   @id @default(cuid())
-  name    String
-  userId  String
-  user    User     @relation(fields: [userId], references: [id])
-  animals Animal[]
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-}
+// model AnimalTemperament {
+//   id      String   @id @default(cuid())
+//   name    String
+//   userId  String
+//   createdAt          DateTime            @default(now())
+//   updatedAt          DateTime            @updatedAt
+// }

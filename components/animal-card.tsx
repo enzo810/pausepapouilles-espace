@@ -3,6 +3,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { AnimalType } from "@/types/AnimalTypes";
 import { Cat, Dog, PawPrint } from "lucide-react";
+import Image from "next/image";
 import { Badge } from "./ui/badge";
 
 type AnimalCardProps = {
@@ -36,9 +37,22 @@ export function AnimalCard({ animal, onClick }: AnimalCardProps) {
       onClick={onClick}
     >
       <div
-        className={`relative flex h-52 items-center justify-center bg-gradient-to-br ${species.gradient}`}
+        className={`relative h-52 w-full bg-gradient-to-br ${species.gradient} overflow-hidden`}
       >
-        <SpeciesIcon className="h-16 w-16 text-gray-600/40 transition-transform" />
+        {animal.imageUrl ? (
+          <Image
+            src={animal.imageUrl}
+            alt={animal.name}
+            fill
+            className="object-cover"
+            style={{ objectFit: "cover" }}
+            sizes="(max-width: 768px) 100vw, 400px"
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center">
+            <SpeciesIcon className="h-16 w-16 text-gray-600/40 transition-transform" />
+          </div>
+        )}
       </div>
       <CardContent className="space-y-1 p-4">
         <div className="flex items-center gap-2 justify-between">

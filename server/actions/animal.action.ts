@@ -6,6 +6,7 @@ import {
   CreateAnimalFormSchema,
   UpdateAnimalFormSchema,
 } from "@/schemas/AnimalFormSchema";
+import { del, put } from "@vercel/blob";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
@@ -13,14 +14,39 @@ export const createAnimal = authAction
   .inputSchema(CreateAnimalFormSchema)
   .action(async ({ ctx, parsedInput: animalData }) => {
     try {
+      const { formData, ...parsedAnimalData } = animalData;
+
       const animal = await prisma.animal.create({
         data: {
-          ...animalData,
+          ...parsedAnimalData,
           userId: ctx.session.user.id,
+          imageUrl: undefined,
         },
       });
 
       if (animal) {
+        const file = formData?.get("file") as File;
+
+        if (file) {
+          const blob = await put(`animals/${animal.id}`, file, {
+            access: "public",
+          });
+
+          const updatedAnimal = await prisma.animal.update({
+            where: {
+              id: animal.id,
+            },
+            data: { imageUrl: blob?.url },
+          });
+
+          revalidatePath("/");
+          return {
+            animal: updatedAnimal,
+            message: "Votre animal a bien été ajouté",
+            status: 200,
+          };
+        }
+
         revalidatePath("/");
         return {
           animal,
@@ -48,12 +74,39 @@ export const updateAnimal = authAction
         throw new ctx.ActionError("Animal non trouvé ou accès non autorisé");
       }
 
+      const { formData, ...parsedAnimalData } = animalData;
+
       const animal = await prisma.animal.update({
         where: { id },
-        data: animalData,
+        data: {
+          ...parsedAnimalData,
+          imageUrl: undefined,
+        },
       });
 
       if (animal) {
+        const file = formData?.get("file") as File;
+
+        if (file) {
+          const blob = await put(`animals/${animal.id}`, file, {
+            access: "public",
+          });
+
+          const updatedAnimal = await prisma.animal.update({
+            where: {
+              id: animal.id,
+            },
+            data: { imageUrl: blob?.url },
+          });
+
+          revalidatePath("/");
+          return {
+            animal: updatedAnimal,
+            message: "Votre animal a bien été mis à jour",
+            status: 200,
+          };
+        }
+
         revalidatePath("/");
         return {
           animal,
@@ -80,9 +133,6 @@ export const getAnimals = authAction
         where: {
           userId: ctx.session.user.id,
         },
-        include: {
-          animalTemperaments: true,
-        },
         orderBy: {
           createdAt: "desc",
         },
@@ -106,9 +156,6 @@ export const getAnimal = authAction
     try {
       const animal = await prisma.animal.findUnique({
         where: { id },
-        include: {
-          animalTemperaments: true,
-        },
       });
 
       if (!animal || animal.userId !== ctx.session.user.id) {
@@ -126,6 +173,46 @@ export const getAnimal = authAction
       }
       throw new ctx.ActionError(
         "Une erreur est survenue lors de la récupération de l'animal",
+      );
+    }
+  });
+
+export const deleteAnimal = authAction
+  .inputSchema(z.object({ id: z.string() }))
+  .action(async ({ ctx, parsedInput: { id } }) => {
+    try {
+      const existingAnimal = await prisma.animal.findUnique({
+        where: { id },
+      });
+
+      if (!existingAnimal || existingAnimal.userId !== ctx.session.user.id) {
+        throw new ctx.ActionError("Animal non trouvé ou accès non autorisé");
+      }
+
+      const animalToDelete = await prisma.animal.findUnique({
+        where: { id },
+      });
+
+      if (animalToDelete && animalToDelete.imageUrl) {
+        await del(animalToDelete.imageUrl);
+      }
+
+      await prisma.animal.delete({
+        where: { id },
+      });
+
+      revalidatePath("/animal");
+      return {
+        message: "Votre animal a bien été supprimé",
+        status: 200,
+      };
+    } catch (e) {
+      console.error(e);
+      if (e instanceof Error && e.message.includes("non trouvé")) {
+        throw e;
+      }
+      throw new ctx.ActionError(
+        "Une erreur est survenue lors de la suppression de votre animal",
       );
     }
   });

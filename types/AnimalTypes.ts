@@ -1,5 +1,3 @@
-import { Animal, AnimalTemperament } from "@/generated/prisma/client";
+import { Animal } from "@/generated/prisma/client";
 
-export type AnimalType = Animal & {
-  animalTemperaments: AnimalTemperament[];
-};
+export type AnimalType = Animal;

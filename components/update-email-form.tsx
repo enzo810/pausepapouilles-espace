@@ -29,7 +29,7 @@ import { toast } from "sonner";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 
 const formSchema = z.object({
-  email: z.string().email("L'email n'est pas valide"),
+  email: z.email("L'email n'est pas valide"),
 });
 
 export function UpdateEmailForm() {

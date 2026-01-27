@@ -9,16 +9,18 @@ import {
 } from "@/lib/utils";
 import { AnimalType } from "@/types/AnimalTypes";
 import {
-  Baby,
-  Dog,
-  Car,
-  Heart,
   AlertTriangle,
-  Utensils,
+  Baby,
+  Car,
   Cookie,
+  Dog,
   FileText,
+  Heart,
   Stethoscope,
+  Utensils,
 } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 
 interface AnimalProps {
   animal: AnimalType;
@@ -81,7 +83,7 @@ export function Animal({ animal }: AnimalProps) {
         <div className="grid grid-cols-2 gap-4">
           <InfoRow
             label="Âge"
-            value={`${animal.age} an${animal.age > 1 ? "s" : ""}`}
+            value={`${animal.age} an${animal.age ? (animal.age > 1 ? "s" : "") : ""}`}
           />
           <InfoRow label="Sexe" value={displayGenderValues(animal.gender)} />
           <InfoRow
@@ -131,17 +133,17 @@ export function Animal({ animal }: AnimalProps) {
           <div className="flex flex-col items-center gap-2">
             <Baby className="h-6 w-6 text-muted-foreground" />
             <p className="text-sm text-muted-foreground">Enfants</p>
-            <AssessmentBadge value={animal.childFriendly} />
+            <AssessmentBadge value={animal.childFriendly || "GOOD"} />
           </div>
           <div className="flex flex-col items-center gap-2">
             <Dog className="h-6 w-6 text-muted-foreground" />
             <p className="text-sm text-muted-foreground">Chiens</p>
-            <AssessmentBadge value={animal.dogFriendly} />
+            <AssessmentBadge value={animal.dogFriendly || "GOOD"} />
           </div>
           <div className="flex flex-col items-center gap-2">
             <Car className="h-6 w-6 text-muted-foreground" />
             <p className="text-sm text-muted-foreground">Circulation</p>
-            <AssessmentBadge value={animal.trafficTolerance} />
+            <AssessmentBadge value={animal.trafficTolerance || "GOOD"} />
           </div>
         </div>
         {animal.temperamentNotes && (
@@ -197,6 +199,31 @@ export function Animal({ animal }: AnimalProps) {
           <Separator />
           <Section title="Notes supplémentaires">
             <p className="text-sm">{animal.additionalNotes}</p>
+          </Section>
+        </>
+      )}
+
+      {animal.imageUrl && (
+        <>
+          <Separator />
+          <Section title="Photo">
+            <Link
+              href={animal.imageUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block group"
+            >
+              <div className="relative w-full h-64 md:h-96 rounded-lg overflow-hidden border shadow-sm transition-transform group-hover:scale-[1.02]">
+                <Image
+                  src={animal.imageUrl}
+                  alt={`Photo de ${animal.name}`}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, 800px"
+                  priority
+                />
+              </div>
+            </Link>
           </Section>
         </>
       )}

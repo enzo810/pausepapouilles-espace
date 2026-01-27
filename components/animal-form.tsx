@@ -49,49 +49,30 @@ export function AnimalForm({ setOpen, animal }: AnimalFormProps = {}) {
 
   const form = useForm<z.infer<typeof CreateAnimalFormSchema>>({
     resolver: zodResolver(CreateAnimalFormSchema),
-    defaultValues: animal
-      ? {
-          name: animal.name,
-          age: animal.age,
-          gender: animal.gender,
-          species: animal.species,
-          otherSpecies: animal.otherSpecies ?? "",
-          type: animal.type,
-          isIdentified: animal.isIdentified,
-          diet: animal.diet,
-          treatsAllowed: animal.treatsAllowed,
-          temperamentNotes: animal.temperamentNotes,
-          childFriendly: animal.childFriendly,
-          dogFriendly: animal.dogFriendly,
-          trafficTolerance: animal.trafficTolerance,
-          socializationNotes: animal.socializationNotes,
-          fears: animal.fears,
-          sensitiveAreas: animal.sensitiveAreas,
-          healthIssues: animal.healthIssues,
-          careInstructions: animal.careInstructions,
-          additionalNotes: animal.additionalNotes,
-        }
-      : {
-          name: "",
-          age: 0,
-          gender: "MALE",
-          species: "DOG",
-          otherSpecies: "",
-          type: "",
-          isIdentified: false,
-          diet: "",
-          treatsAllowed: false,
-          temperamentNotes: "",
-          childFriendly: "GOOD",
-          dogFriendly: "GOOD",
-          trafficTolerance: "GOOD",
-          socializationNotes: "",
-          fears: "",
-          sensitiveAreas: "",
-          healthIssues: false,
-          careInstructions: "",
-          additionalNotes: "",
-        },
+    defaultValues: {
+      name: animal?.name || "",
+      age: animal?.age || 0,
+      birthDate: animal?.birthDate || undefined,
+      gender: animal?.gender || "MALE",
+      species: animal?.species || undefined,
+      otherSpecies: animal?.otherSpecies || "",
+      type: animal?.type || "",
+      isIdentified: animal?.isIdentified || false,
+      diet: animal?.diet || "",
+      treatsAllowed: animal?.treatsAllowed || false,
+      temperamentNotes: animal?.temperamentNotes || "",
+      childFriendly: animal?.childFriendly || undefined,
+      dogFriendly: animal?.dogFriendly || undefined,
+      trafficTolerance: animal?.trafficTolerance || undefined,
+      socializationNotes: animal?.socializationNotes || "",
+      fears: animal?.fears || "",
+      sensitiveAreas: animal?.sensitiveAreas || "",
+      healthIssues: animal?.healthIssues || false,
+      careInstructions: animal?.careInstructions || "",
+      additionalNotes: animal?.additionalNotes || "",
+      formData: undefined,
+      imageUrl: undefined,
+    },
   });
 
   const { mutateAsync: mutateCreateAnimal, isPending: isCreating } =
@@ -134,14 +115,32 @@ export function AnimalForm({ setOpen, animal }: AnimalFormProps = {}) {
   const isPending = isCreating || isUpdating;
 
   async function onSubmit(values: z.infer<typeof CreateAnimalFormSchema>) {
+    const formDataWithFile = new FormData();
+    if (values?.imageUrl?.[0]) {
+      const blob = new Blob([values?.imageUrl?.[0] as BlobPart], {
+        type: values?.imageUrl?.[0]?.type,
+      });
+      formDataWithFile.append("file", blob);
+    }
+
     if (isEditMode && animal) {
-      await mutateUpdateAnimal({ ...values, id: animal.id });
+      await mutateUpdateAnimal({
+        ...values,
+        id: animal.id,
+        formData: formDataWithFile,
+        imageUrl: undefined,
+      });
     } else {
-      await mutateCreateAnimal(values);
+      await mutateCreateAnimal({
+        ...values,
+        formData: formDataWithFile,
+        imageUrl: undefined,
+      });
     }
   }
 
   const species = form.watch("species");
+  const inputRef = form.register("imageUrl");
 
   return (
     <Form {...form}>
@@ -523,6 +522,19 @@ export function AnimalForm({ setOpen, animal }: AnimalFormProps = {}) {
                   <Textarea {...field} placeholder="Notes supplémentaires" />
                 </FormControl>
                 <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="imageUrl"
+            render={() => (
+              <FormItem>
+                <FormLabel>Notes supplémentaires</FormLabel>
+                <FormControl>
+                  <Input {...inputRef} type="file" accept="image/*" />
+                </FormControl>
               </FormItem>
             )}
           />
