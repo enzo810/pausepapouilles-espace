@@ -19,6 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { UserRole } from "@/generated/prisma/enums";
 import { AnimalType } from "@/types/AnimalTypes";
 import React from "react";
 import { AnimalCard } from "../animal-card";
@@ -31,16 +32,18 @@ type DataTableProps<TValue> = {
   columns: ColumnDef<AnimalType, TValue>[];
   data: AnimalType[];
   type: "animal";
+  role: UserRole;
 };
 
 export function DataTable<TValue>({
   columns,
   data,
   type,
+  role,
 }: DataTableProps<TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [displayType, setDisplayType] = React.useState<"table" | "card">(
-    "table",
+    role === "ADMIN" || role === "PET_SITTER" ? "table" : "card",
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -71,16 +74,18 @@ export function DataTable<TValue>({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-end gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() =>
-            setDisplayType(displayType === "table" ? "card" : "table")
-          }
-        >
-          {displayType === "table" ? "Voir en carte" : "Voir en table"}
-        </Button>
-        <DataTableViewOptions table={table} />
+        {(role === "ADMIN" || role === "PET_SITTER") && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() =>
+              setDisplayType(displayType === "table" ? "card" : "table")
+            }
+          >
+            {displayType === "table" ? "Voir en carte" : "Voir en table"}
+          </Button>
+        )}
+        {displayType === "table" && <DataTableViewOptions table={table} />}
       </div>
       {displayType === "card" ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

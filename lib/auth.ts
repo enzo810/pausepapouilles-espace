@@ -1,7 +1,7 @@
 import { betterAuth, BetterAuthOptions } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { admin as adminPlugin, customSession } from "better-auth/plugins";
-import { CLIENT, PET_SITTER } from "./permissions";
+import { ADMIN, CLIENT, PET_SITTER } from "./permissions";
 import prismaPublic from "./prisma";
 import { resend } from "./resend";
 import { extendUser } from "./session-manager";
@@ -52,8 +52,9 @@ const options = {
       roles: {
         CLIENT,
         PET_SITTER,
+        ADMIN,
       },
-      adminRoles: ["PET_SITTER"],
+      adminRoles: ["ADMIN", "PET_SITTER"],
     }),
   ],
 } satisfies BetterAuthOptions;

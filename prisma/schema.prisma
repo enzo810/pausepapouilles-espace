@@ -88,4 +88,5 @@ model Verification {
 enum UserRole {
   CLIENT
   PET_SITTER
+  ADMIN
 }

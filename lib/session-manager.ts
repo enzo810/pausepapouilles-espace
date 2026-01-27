@@ -1,9 +1,7 @@
 import { User } from "@/generated/prisma/client";
 import prismaAdmin from "./prisma-admin";
 
-export type ExtendUser = Omit<User, "role">;
-
-export async function extendUser(userId: string): Promise<ExtendUser> {
+export async function extendUser(userId: string): Promise<User> {
   const user = await prismaAdmin.user.findUnique({
     where: { id: userId },
     select: {
@@ -19,6 +17,7 @@ export async function extendUser(userId: string): Promise<ExtendUser> {
       banExpires: true,
       createdAt: true,
       updatedAt: true,
+      role: true,
     },
   });
 
