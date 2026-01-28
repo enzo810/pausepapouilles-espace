@@ -10,15 +10,13 @@ export default async function ProtectedLayout({
 }) {
   const session = await getSession();
 
-  if (!session?.user) {
-    redirect("/signin");
-  } else if (!session.user.emailVerified) {
+  if (session && !session.user.emailVerified) {
     redirect(`/verify-email?email=${session.user.email}`);
   }
 
   return (
     <div>
-      <Header user={session.user} />
+      {session && <Header user={session.user} />}
       <PageLayout>{children}</PageLayout>
     </div>
   );
