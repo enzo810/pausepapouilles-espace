@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
+import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -29,7 +29,7 @@ import { toast } from "sonner";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 
 const formSchema = z.object({
-  email: z.email(),
+  email: z.email("L'email n'est pas valide"),
 });
 
 export function UpdateEmailForm() {

@@ -39,10 +39,10 @@ export default function ForgetPasswordPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Forget Password</CardTitle>
+        <CardTitle>Mot de passe oublié</CardTitle>
         <CardDescription className="text-sm text-muted-foreground mt-1">
-          Enter your email address below and we&apos;ll send you instructions to
-          reset your password.
+          Entrez votre adresse email ci-dessous et nous vous enverrons les
+          instructions pour réinitialiser votre mot de passe.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -51,7 +51,7 @@ export default function ForgetPasswordPage() {
             <Label htmlFor="email">Email</Label>
             <Input type="email" id="email" name="email" />
           </div>
-          <Button type="submit">Reset Password</Button>
+          <Button type="submit">Réinitialiser le mot de passe</Button>
         </form>
       </CardContent>
     </Card>
