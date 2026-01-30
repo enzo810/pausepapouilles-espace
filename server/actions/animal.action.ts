@@ -9,6 +9,7 @@ import {
 import { del, put } from "@vercel/blob";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { isPetSitter } from "./role.action";
 
 export const createAnimal = authAction
   .inputSchema(CreateAnimalFormSchema)
@@ -16,10 +17,15 @@ export const createAnimal = authAction
     try {
       const { formData, ...parsedAnimalData } = animalData;
 
+      const isPetSitterResult = await isPetSitter(ctx.session.user.id);
+
       const animal = await prisma.animal.create({
         data: {
           ...parsedAnimalData,
-          userId: ctx.session.user.id,
+          userId:
+            isPetSitterResult.data?.isPetSitter && animalData?.userId
+              ? animalData.userId
+              : ctx.session.user.id,
           imageUrl: undefined,
         },
       });
@@ -76,11 +82,17 @@ export const updateAnimal = authAction
 
       const { formData, ...parsedAnimalData } = animalData;
 
+      const isPetSitterResult = await isPetSitter(ctx.session.user.id);
+
       const animal = await prisma.animal.update({
         where: { id },
         data: {
           ...parsedAnimalData,
           imageUrl: undefined,
+          userId:
+            isPetSitterResult.data?.isPetSitter && animalData?.userId
+              ? animalData.userId
+              : undefined,
         },
       });
 

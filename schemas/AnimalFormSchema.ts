@@ -29,6 +29,7 @@ export const CreateAnimalFormSchema = z.object({
   careInstructions: z.string().optional(),
   additionalNotes: z.string().optional(),
   formData: z.instanceof(FormData).optional().nullable(),
+  userId: z.string().optional().nullable(),
   imageUrl: z
     .custom<FileList>()
     .refine(

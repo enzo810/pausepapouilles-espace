@@ -1,6 +1,16 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+  ComboboxStatus,
+} from "@/components/ui/combobox";
+import { useDialogContainer } from "@/components/ui/dialog";
 import { Field, FieldDescription, FieldGroup } from "@/components/ui/field";
 import {
   Form,
@@ -22,6 +32,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { authClient, useSession } from "@/lib/auth-client";
 import { assessmentValues, genderValues, speciesValues } from "@/lib/constants";
 import {
   displayAssessmentValues,
@@ -32,7 +43,7 @@ import { CreateAnimalFormSchema } from "@/schemas/AnimalFormSchema";
 import { createAnimal, updateAnimal } from "@/server/actions/animal.action";
 import { AnimalType } from "@/types/AnimalTypes";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -44,8 +55,27 @@ interface AnimalFormProps {
 }
 
 export function AnimalForm({ setOpen, animal }: AnimalFormProps = {}) {
+  const { data: session } = useSession();
   const router = useRouter();
   const isEditMode = !!animal;
+  const dialogContainer = useDialogContainer();
+
+  const {
+    data: usersData,
+    isLoading: usersLoading,
+    isError: usersError,
+  } = useQuery({
+    queryKey: ["users"],
+    queryFn: async () => {
+      const users = await authClient.admin.listUsers({
+        query: {},
+      });
+      return users;
+    },
+
+    refetchInterval: 0,
+    staleTime: Infinity,
+  });
 
   const form = useForm<z.infer<typeof CreateAnimalFormSchema>>({
     resolver: zodResolver(CreateAnimalFormSchema),
@@ -70,6 +100,7 @@ export function AnimalForm({ setOpen, animal }: AnimalFormProps = {}) {
       healthIssues: animal?.healthIssues || false,
       careInstructions: animal?.careInstructions || "",
       additionalNotes: animal?.additionalNotes || "",
+      userId: animal?.userId || undefined,
       formData: undefined,
       imageUrl: undefined,
     },
@@ -141,6 +172,11 @@ export function AnimalForm({ setOpen, animal }: AnimalFormProps = {}) {
 
   const species = form.watch("species");
   const inputRef = form.register("imageUrl");
+
+  const userId = form.watch("userId");
+  console.log("userId", userId);
+
+  console.log("usersData", usersData);
 
   return (
     <Form {...form}>
@@ -528,10 +564,69 @@ export function AnimalForm({ setOpen, animal }: AnimalFormProps = {}) {
 
           <FormField
             control={form.control}
+            name="userId"
+            render={({ field }) => {
+              const users = usersData?.data?.users ?? [];
+              const selectedUser = users.find((u) => u.id === field.value);
+              return (
+                <FormItem>
+                  <FormLabel>Propriétaire</FormLabel>
+                  <FormControl>
+                    <Combobox
+                      items={users}
+                      modal={true}
+                      value={selectedUser ?? null}
+                      onValueChange={(user) => field.onChange(user?.id ?? null)}
+                      itemToStringLabel={(user) => user.name ?? ""}
+                      isItemEqualToValue={(item, value) =>
+                        item?.id === value?.id
+                      }
+                    >
+                      <ComboboxInput
+                        placeholder="Sélectionner le propriétaire"
+                        showClear
+                      />
+                      <ComboboxContent container={dialogContainer}>
+                        {usersError ? (
+                          <ComboboxStatus>
+                            Une erreur est survenue
+                          </ComboboxStatus>
+                        ) : usersData?.error ? (
+                          <ComboboxStatus>
+                            {usersData?.error?.message ||
+                              "Une erreur est survenue"}
+                          </ComboboxStatus>
+                        ) : usersLoading ? (
+                          <ComboboxStatus>Chargement...</ComboboxStatus>
+                        ) : (
+                          <>
+                            <ComboboxEmpty>
+                              Aucun propriétaire trouvé.
+                            </ComboboxEmpty>
+                            <ComboboxList>
+                              {(user) => (
+                                <ComboboxItem key={user.id} value={user}>
+                                  {user.name}
+                                </ComboboxItem>
+                              )}
+                            </ComboboxList>
+                          </>
+                        )}
+                      </ComboboxContent>
+                    </Combobox>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
+          />
+
+          <FormField
+            control={form.control}
             name="imageUrl"
             render={() => (
               <FormItem>
-                <FormLabel>Notes supplémentaires</FormLabel>
+                <FormLabel>Photo de l'animal</FormLabel>
                 <FormControl>
                   <Input {...inputRef} type="file" accept="image/*" />
                 </FormControl>
