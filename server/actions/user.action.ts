@@ -77,6 +77,35 @@ export const deleteUser = adminAction
     }
   });
 
+export const getUserById = petSitterAction
+  .inputSchema(z.object({ id: z.string() }))
+  .action(async ({ ctx, parsedInput: { id } }) => {
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id },
+        include: { animals: true },
+      });
+
+      if (!user) {
+        throw new ctx.ActionError("Utilisateur non trouvé");
+      }
+
+      return {
+        status: 200,
+        user,
+        message: "L'utilisateur a bien été récupéré",
+      };
+    } catch (e) {
+      console.error(e);
+      if (e instanceof Error && e.message.includes("non trouvé")) {
+        throw e;
+      }
+      throw new ctx.ActionError(
+        "Une erreur est survenue lors de la récupération de l'utilisateur",
+      );
+    }
+  });
+
 export const updateProfile = authAction
   .inputSchema(UpdateProfileFormSchema)
   .action(async ({ ctx, parsedInput: { firstname, lastname } }) => {

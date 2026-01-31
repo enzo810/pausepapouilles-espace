@@ -37,6 +37,8 @@ interface DataTableProps<TData, TValue> {
     open: boolean;
     setOpen: (open: boolean) => void;
   }) => React.ReactNode;
+
+  onRowClick?: (item: TData) => void;
 }
 
 export function DataTable<TData, TValue>({
@@ -45,6 +47,7 @@ export function DataTable<TData, TValue>({
   data,
   renderCard,
   renderDialog,
+  onRowClick,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] =
@@ -77,18 +80,17 @@ export function DataTable<TData, TValue>({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-end gap-2">
-        {role === "ADMIN" ||
-          (role === "PET_SITTER" && renderCard && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() =>
-                setDisplayType(displayType === "table" ? "card" : "table")
-              }
-            >
-              {displayType === "table" ? "Voir en carte" : "Voir en table"}
-            </Button>
-          ))}
+        {(role === "ADMIN" || role === "PET_SITTER") && renderCard && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() =>
+              setDisplayType(displayType === "table" ? "card" : "table")
+            }
+          >
+            {displayType === "table" ? "Voir en carte" : "Voir en table"}
+          </Button>
+        )}
         <DataTableViewOptions table={table} />
       </div>
       {displayType === "card" && renderCard ? (
@@ -134,7 +136,11 @@ export function DataTable<TData, TValue>({
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
                     onClick={() => {
-                      setSelectedItem(row.original);
+                      if (onRowClick) {
+                        onRowClick(row.original);
+                      } else {
+                        setSelectedItem(row.original);
+                      }
                     }}
                   >
                     {row.getVisibleCells().map((cell) => (

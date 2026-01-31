@@ -137,57 +137,28 @@ export const updateAnimal = authAction
     }
   });
 
-export const getAnimals = authAction
-  .inputSchema(z.void())
-  .action(async ({ ctx }) => {
-    try {
-      const animals = await prisma.animal.findMany({
-        where: {
-          userId: ctx.session.user.id,
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
-      });
+export const getAnimals = authAction.action(async ({ ctx }) => {
+  try {
+    const animals = await prisma.animal.findMany({
+      where: {
+        userId: ctx.session.user.id,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
 
-      return {
-        animals,
-        status: 200,
-      };
-    } catch (e) {
-      console.error(e);
-      throw new ctx.ActionError(
-        "Une erreur est survenue lors de la récupération des animaux",
-      );
-    }
-  });
-
-export const getAnimal = authAction
-  .inputSchema(z.object({ id: z.string() }))
-  .action(async ({ ctx, parsedInput: { id } }) => {
-    try {
-      const animal = await prisma.animal.findUnique({
-        where: { id },
-      });
-
-      if (!animal || animal.userId !== ctx.session.user.id) {
-        throw new ctx.ActionError("Animal non trouvé ou accès non autorisé");
-      }
-
-      return {
-        animal,
-        status: 200,
-      };
-    } catch (e) {
-      console.error(e);
-      if (e instanceof Error && e.message.includes("non trouvé")) {
-        throw e;
-      }
-      throw new ctx.ActionError(
-        "Une erreur est survenue lors de la récupération de l'animal",
-      );
-    }
-  });
+    return {
+      animals,
+      status: 200,
+    };
+  } catch (e) {
+    console.error(e);
+    throw new ctx.ActionError(
+      "Une erreur est survenue lors de la récupération des animaux",
+    );
+  }
+});
 
 export const deleteAnimal = authAction
   .inputSchema(z.object({ id: z.string() }))

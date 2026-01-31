@@ -13,7 +13,7 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import { AnimalForm } from "./animal-form";
 
-export function CreateAnimalDialog() {
+export function CreateAnimalDialog({ userId }: { userId?: string }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -32,7 +32,7 @@ export function CreateAnimalDialog() {
             votre profil.
           </DialogDescription>
         </DialogHeader>
-        <AnimalForm setOpen={setOpen} />
+        <AnimalForm setOpen={setOpen} userId={userId} />
       </DialogContent>
     </Dialog>
   );

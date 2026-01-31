@@ -53,9 +53,10 @@ import { z } from "zod";
 interface AnimalFormProps {
   setOpen?: (open: boolean) => void;
   animal?: AnimalType;
+  userId?: string;
 }
 
-export function AnimalForm({ setOpen, animal }: AnimalFormProps = {}) {
+export function AnimalForm({ setOpen, animal, userId }: AnimalFormProps = {}) {
   const { data: session } = useSession();
   const router = useRouter();
   const isEditMode = !!animal;
@@ -100,7 +101,7 @@ export function AnimalForm({ setOpen, animal }: AnimalFormProps = {}) {
       healthIssues: animal?.healthIssues || false,
       careInstructions: animal?.careInstructions || "",
       additionalNotes: animal?.additionalNotes || "",
-      userId: animal?.userId || undefined,
+      userId: animal?.userId || userId || undefined,
       formData: undefined,
       imageUrl: undefined,
     },

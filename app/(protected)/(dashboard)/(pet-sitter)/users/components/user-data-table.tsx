@@ -1,9 +1,9 @@
 "use client";
 
 import { DataTable } from "@/components/data-table/data-table";
-import { UserDialog } from "@/components/user-dialog";
 import { UserRole } from "@/generated/prisma/enums";
 import { UsersType } from "@/types/UserType";
+import { useRouter } from "next/navigation";
 import { columns } from "./users-columns";
 
 type UserDataTableProps = {
@@ -12,19 +12,14 @@ type UserDataTableProps = {
 };
 
 export function UserDataTable({ users, role }: UserDataTableProps) {
+  const router = useRouter();
+
   return (
     <DataTable
       columns={columns}
       data={users}
       role={role}
-      renderDialog={({ selected, open, setOpen }) => (
-        <UserDialog
-          user={selected}
-          open={open}
-          setOpen={setOpen}
-          key={selected.id}
-        />
-      )}
+      onRowClick={(user) => router.push(`/users/${user.id}`)}
     />
   );
 }
