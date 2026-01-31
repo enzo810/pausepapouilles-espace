@@ -1,8 +1,7 @@
 import { CreateAnimalDialog } from "@/components/create-animal-dialog";
-import { DataTable } from "@/components/data-table/data-table";
 import { getSession } from "@/lib/auth-server";
 import { getAnimals } from "@/server/actions/animal.action";
-import { columns } from "./components/columns";
+import { AnimalDataTable } from "./components/animal-data-table";
 
 export default async function AnimalPage() {
   const session = await getSession();
@@ -13,12 +12,7 @@ export default async function AnimalPage() {
     session && (
       <>
         <CreateAnimalDialog />
-        <DataTable
-          columns={columns}
-          data={animals}
-          type="animal"
-          role={session.user.role}
-        />
+        <AnimalDataTable animals={animals} role={session.user.role} />
       </>
     )
   );

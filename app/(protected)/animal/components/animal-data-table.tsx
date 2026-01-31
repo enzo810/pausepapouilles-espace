@@ -1,0 +1,34 @@
+"use client";
+
+import { AnimalCard } from "@/components/animal-card";
+import { AnimalDialog } from "@/components/animal-dialog";
+import { DataTable } from "@/components/data-table/data-table";
+import { UserRole } from "@/generated/prisma/enums";
+import { AnimalsType } from "@/types/AnimalTypes";
+import { columns } from "./columns";
+
+type AnimalDataTableProps = {
+  animals: AnimalsType;
+  role: UserRole;
+};
+
+export function AnimalDataTable({ animals, role }: AnimalDataTableProps) {
+  return (
+    <DataTable
+      columns={columns}
+      data={animals}
+      role={role}
+      renderCard={({ item, select }) => (
+        <AnimalCard animal={item} onClick={select} key={item.id} />
+      )}
+      renderDialog={({ selected, open, setOpen }) => (
+        <AnimalDialog
+          animal={selected}
+          open={open}
+          setOpen={setOpen}
+          key={selected.id}
+        />
+      )}
+    />
+  );
+}

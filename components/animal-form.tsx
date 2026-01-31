@@ -173,10 +173,10 @@ export function AnimalForm({ setOpen, animal }: AnimalFormProps = {}) {
   const species = form.watch("species");
   const inputRef = form.register("imageUrl");
 
-  const userId = form.watch("userId");
-  console.log("userId", userId);
+  // const userId = form.watch("userId");a
+  // console.log("userId", userId);
 
-  console.log("usersData", usersData);
+  // console.log("usersData", usersData);
 
   return (
     <Form {...form}>
