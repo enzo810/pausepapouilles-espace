@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { authClient, useSession } from "@/lib/auth-client";
+import { useSession } from "@/lib/auth-client";
 import { assessmentValues, genderValues, speciesValues } from "@/lib/constants";
 import {
   displayAssessmentValues,
@@ -41,6 +41,7 @@ import {
 } from "@/lib/utils";
 import { CreateAnimalFormSchema } from "@/schemas/AnimalFormSchema";
 import { createAnimal, updateAnimal } from "@/server/actions/animal.action";
+import { getUsers } from "@/server/actions/user.action";
 import { AnimalType } from "@/types/AnimalTypes";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -67,12 +68,11 @@ export function AnimalForm({ setOpen, animal }: AnimalFormProps = {}) {
   } = useQuery({
     queryKey: ["users"],
     queryFn: async () => {
-      const users = await authClient.admin.listUsers({
-        query: {},
-      });
-      return users;
+      const users = await getUsers();
+      return users.data?.users ?? [];
     },
-
+    enabled:
+      session?.user.role === "ADMIN" || session?.user.role === "PET_SITTER",
     refetchInterval: 0,
     staleTime: Infinity,
   });
@@ -566,7 +566,7 @@ export function AnimalForm({ setOpen, animal }: AnimalFormProps = {}) {
             control={form.control}
             name="userId"
             render={({ field }) => {
-              const users = usersData?.data?.users ?? [];
+              const users = usersData ?? [];
               const selectedUser = users.find((u) => u.id === field.value);
               return (
                 <FormItem>
@@ -590,11 +590,6 @@ export function AnimalForm({ setOpen, animal }: AnimalFormProps = {}) {
                         {usersError ? (
                           <ComboboxStatus>
                             Une erreur est survenue
-                          </ComboboxStatus>
-                        ) : usersData?.error ? (
-                          <ComboboxStatus>
-                            {usersData?.error?.message ||
-                              "Une erreur est survenue"}
                           </ComboboxStatus>
                         ) : usersLoading ? (
                           <ComboboxStatus>Chargement...</ComboboxStatus>

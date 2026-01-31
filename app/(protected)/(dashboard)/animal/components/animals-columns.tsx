@@ -1,8 +1,6 @@
 "use client";
 
-import { AnimalDialog } from "@/components/animal-dialog";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
-import { Button } from "@/components/ui/button";
 import {
   displayAssessmentValues,
   displayGenderValues,
@@ -10,7 +8,6 @@ import {
 } from "@/lib/utils";
 import { AnimalType } from "@/types/AnimalTypes";
 import { ColumnDef } from "@tanstack/react-table";
-import { Eye } from "lucide-react";
 
 export const columns: ColumnDef<AnimalType>[] = [
   {
@@ -46,7 +43,7 @@ export const columns: ColumnDef<AnimalType>[] = [
     cell: ({ row }) => {
       return displaySpeciesValues(
         row.getValue("species"),
-        row.original.otherSpecies,
+        row.original.otherSpecies ?? undefined,
       );
     },
   },
@@ -99,24 +96,6 @@ export const columns: ColumnDef<AnimalType>[] = [
     ),
     cell: ({ row }) => {
       return row.getValue("healthIssues") ? "Oui" : "Non";
-    },
-  },
-  {
-    id: "actions",
-    header: "Actions",
-    cell: ({ row }) => {
-      const animal = row.original;
-      return (
-        <AnimalDialog
-          animal={animal}
-          trigger={
-            <Button variant="ghost" size="sm">
-              <Eye className="h-4 w-4 mr-2" />
-              Voir
-            </Button>
-          }
-        />
-      );
     },
   },
 ];

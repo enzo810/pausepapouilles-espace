@@ -1,107 +1,103 @@
 "use server";
 
 import { auth } from "@/lib/auth";
+import { userRoleValues } from "@/lib/constants";
 import prisma from "@/lib/prisma";
-import { authAction, publicAction } from "@/lib/safe-action";
-import {
-  CreateUserFormSchema,
-  UpdateUserFormSchema,
-} from "@/schemas/UserFormSchema";
+import { adminAction, authAction, petSitterAction } from "@/lib/safe-action";
+import { UpdateProfileFormSchema } from "@/schemas/UserFormSchema";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
+import { z } from "zod";
 
-export const signup = publicAction
-  .inputSchema(CreateUserFormSchema)
-  .action(async ({ ctx, parsedInput: user }) => {
+export const getUsers = petSitterAction.action(async ({ ctx }) => {
+  try {
+    const users = await prisma.user.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    return {
+      status: 200,
+      users,
+      message: "Les utilisateurs ont bien été récupérés",
+    };
+  } catch (e) {
+    console.error(e);
+    throw new ctx.ActionError(
+      "Une erreur est survenue lors de la récupération des utilisateurs",
+    );
+  }
+});
+
+export const updateUserRole = adminAction
+  .inputSchema(z.object({ id: z.string(), role: z.enum(userRoleValues) }))
+  .action(async ({ ctx, parsedInput: { id, role } }) => {
     try {
-      const result = await auth.api.signUpEmail({
+      await auth.api.setRole({
         body: {
-          email: user.email,
-          password: user.password,
-          name: `${user.firstname} ${user.lastname}`,
+          userId: id,
+          role,
         },
         headers: await headers(),
       });
 
-      if (!result.user) {
-        throw new ctx.ActionError(
-          "Une Erreur est survenue lors de la création du compte",
-        );
-      }
-
-      const updatedUser = await prisma.user.update({
-        where: { id: result.user.id },
-        data: {
-          firstname: user.firstname,
-          lastname: user.lastname,
-        },
-      });
-
-      if (updatedUser) {
-        const connectedUser = await auth.api.signInEmail({
-          body: {
-            email: user.email,
-            password: user.password,
-          },
-          headers: await headers(),
-        });
-
-        if (connectedUser.user) {
-          revalidatePath("/");
-          return {
-            user: result.user,
-            message: "Le compte a bien été créé",
-            status: 200,
-          };
-        }
-      }
+      revalidatePath("/users");
+      return {
+        message: "Le rôle a bien été mis à jour",
+        status: 200,
+      };
     } catch (e) {
       console.error(e);
       throw new ctx.ActionError(
-        "Une erreur est survenue lors de la création du compte",
+        "Une erreur est survenue lors de la mise à jour du rôle",
       );
     }
   });
 
-export const updateSelfUser = authAction
-  .inputSchema(UpdateUserFormSchema)
-  .action(async ({ ctx, parsedInput: user }) => {
-    if (user.id !== ctx.session.user.id) {
+export const deleteUser = adminAction
+  .inputSchema(z.object({ id: z.string() }))
+  .action(async ({ ctx, parsedInput: { id } }) => {
+    try {
+      await auth.api.removeUser({
+        body: { userId: id },
+        headers: await headers(),
+      });
+
+      revalidatePath("/users");
+      return {
+        message: "L'utilisateur a bien été supprimé",
+        status: 200,
+      };
+    } catch (e) {
+      console.error(e);
       throw new ctx.ActionError(
-        "Vous n'avez pas les droits pour effectuer cette action",
+        "Une erreur est survenue lors de la suppression de l'utilisateur",
       );
     }
+  });
 
-    const existingUser = await prisma.user.findFirst({
-      where: {
-        email: user.email,
-        id: {
-          not: user.id,
-        },
-      },
-    });
-
-    if (existingUser) {
-      throw new ctx.ActionError("Cette adresse email est déjà utilisée");
-    }
-
+export const updateProfile = authAction
+  .inputSchema(UpdateProfileFormSchema)
+  .action(async ({ ctx, parsedInput: { firstname, lastname } }) => {
     try {
-      const updatedUser = await prisma.user.update({
+      await prisma.user.update({
         where: {
-          id: user.id,
+          id: ctx.session.user.id,
         },
         data: {
-          ...user,
+          firstname,
+          lastname,
+          name: `${firstname} ${lastname}`,
         },
       });
 
-      if (updatedUser) {
-        revalidatePath("/profile");
-        return {
-          message: "Le profil a bien été mis à jour",
-          status: 200,
-        };
-      }
+      revalidatePath("/profile");
+
+      return {
+        message: "Le profil a bien été complété",
+        status: 200,
+      };
     } catch (e) {
       console.error(e);
       throw new ctx.ActionError(

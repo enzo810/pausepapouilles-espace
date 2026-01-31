@@ -13,6 +13,7 @@ import {
 import { UserRole } from "@/generated/prisma/enums";
 import { flexRender } from "@tanstack/react-table";
 import React from "react";
+import { Button } from "../ui/button";
 import {
   Table,
   TableBody,
@@ -22,7 +23,6 @@ import {
   TableRow,
 } from "../ui/table";
 import { DataTablePagination } from "./data-table-pagination";
-import { Button } from "../ui/button";
 import { DataTableViewOptions } from "./data-table-view-options";
 
 interface DataTableProps<TData, TValue> {
@@ -30,7 +30,7 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
 
-  renderCard: (args: { item: TData; select: () => void }) => React.ReactNode;
+  renderCard?: (args: { item: TData; select: () => void }) => React.ReactNode;
 
   renderDialog?: (args: {
     selected: TData;
@@ -50,7 +50,9 @@ export function DataTable<TData, TValue>({
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [displayType, setDisplayType] = React.useState<"table" | "card">(
-    role === "ADMIN" || role === "PET_SITTER" ? "table" : "card",
+    role === "ADMIN" || (role === "PET_SITTER" && renderCard)
+      ? "table"
+      : "card",
   );
 
   const [selectedItem, setSelectedItem] = React.useState<TData | undefined>(
@@ -75,18 +77,21 @@ export function DataTable<TData, TValue>({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-end gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() =>
-            setDisplayType(displayType === "table" ? "card" : "table")
-          }
-        >
-          {displayType === "table" ? "Voir en carte" : "Voir en table"}
-        </Button>
+        {role === "ADMIN" ||
+          (role === "PET_SITTER" && renderCard && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                setDisplayType(displayType === "table" ? "card" : "table")
+              }
+            >
+              {displayType === "table" ? "Voir en carte" : "Voir en table"}
+            </Button>
+          ))}
         <DataTableViewOptions table={table} />
       </div>
-      {displayType === "card" ? (
+      {displayType === "card" && renderCard ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) =>

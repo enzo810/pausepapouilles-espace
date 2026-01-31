@@ -1,15 +1,9 @@
 /**
- * Routes publiques - préfixes de routes accessibles sans authentification
+ * Routes publiques
  */
-export const publicPrefixes = [
-  "/signin",
-  "/signup",
-  "/forget-password",
-  "/reset-password",
-  "/verify-email",
-];
+export const publicPrefixes = ["/signin", "/verify-email"];
 
 /**
- * Routes d'authentification Better Auth
+ * Routes API Better Auth
  */
 export const authPrefix = "/api/auth";

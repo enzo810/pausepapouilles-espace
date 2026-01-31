@@ -12,14 +12,13 @@ export default async function VerifyPage(props: {
   const email = searchParams.email;
 
   return (
-    <Card>
+    <Card className="w-full max-w-sm">
       <CardHeader>
         <CardTitle>Important : Vérifiez votre email</CardTitle>
         {email ? (
           <CardDescription>
             Nous vous avons envoyé un email de vérification à {email}. Veuillez
-            vérifier votre email et cliquer sur le lien pour vérifier votre
-            compte.
+            cliquer sur le lien pour vérifier votre compte.
           </CardDescription>
         ) : null}
       </CardHeader>

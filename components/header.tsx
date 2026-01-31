@@ -9,7 +9,7 @@ import {
   NavigationMenuViewport,
 } from "@/components/ui/navigation-menu";
 import { auth } from "@/lib/auth";
-import { User } from "better-auth";
+import { User } from "@/lib/auth-client";
 import { LogOut, User2 } from "lucide-react";
 import { headers } from "next/headers";
 import Link from "next/link";

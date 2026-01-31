@@ -1,6 +1,10 @@
 import { betterAuth, BetterAuthOptions } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { admin as adminPlugin, customSession } from "better-auth/plugins";
+import {
+  admin as adminPlugin,
+  customSession,
+  magicLink,
+} from "better-auth/plugins";
 import { ADMIN, CLIENT, PET_SITTER } from "./permissions";
 import prismaPublic from "./prisma";
 import { resend } from "./resend";
@@ -24,24 +28,11 @@ const options = {
     },
   },
   emailVerification: {
-    sendOnSignUp: true,
-    sendOnSignIn: true,
     sendVerificationEmail: async ({ user, url }) => {
       await resend.emails.send({
         to: user.email,
         subject: "Verify your email address",
         text: `Click the link to verify your email: ${url}`,
-        from: "noreply@enzo-dev.com",
-      });
-    },
-  },
-  emailAndPassword: {
-    enabled: true,
-    sendResetPassword: async ({ user, url }) => {
-      await resend.emails.send({
-        to: user.email,
-        subject: "Reset your password",
-        text: `Click the link to reset your password: ${url}`,
         from: "noreply@enzo-dev.com",
       });
     },
@@ -55,6 +46,16 @@ const options = {
         ADMIN,
       },
       adminRoles: ["ADMIN", "PET_SITTER"],
+    }),
+    magicLink({
+      sendMagicLink: async ({ email, token, url }) => {
+        await resend.emails.send({
+          to: email,
+          subject: "Access your account",
+          text: `Click to access your account: ${url}?token=${token}`,
+          from: "noreply@enzo-dev.com",
+        });
+      },
     }),
   ],
 } satisfies BetterAuthOptions;

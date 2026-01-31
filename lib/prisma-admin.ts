@@ -10,10 +10,7 @@ export const prismaAdmin =
     });
     return new PrismaClient({
       adapter,
-      log:
-        process.env.NODE_ENV === "development"
-          ? ["query", "error", "warn"]
-          : ["error"],
+      log: process.env.NODE_ENV === "development" ? ["warn"] : ["warn"],
     });
   })();
 
