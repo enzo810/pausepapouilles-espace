@@ -2,7 +2,6 @@
 
 import {
   ColumnDef,
-  flexRender,
   getCoreRowModel,
   getPaginationRowModel,
   getSortedRowModel,
@@ -11,6 +10,9 @@ import {
   VisibilityState,
 } from "@tanstack/react-table";
 
+import { UserRole } from "@/generated/prisma/enums";
+import { flexRender } from "@tanstack/react-table";
+import React from "react";
 import {
   Table,
   TableBody,
@@ -18,46 +20,44 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { UserRole } from "@/generated/prisma/enums";
-import { AnimalType } from "@/types/AnimalTypes";
-import React from "react";
-import { AnimalCard } from "../animal-card";
-import { AnimalDialog } from "../animal-dialog";
-import { Button } from "../ui/button";
+} from "../ui/table";
 import { DataTablePagination } from "./data-table-pagination";
+import { Button } from "../ui/button";
 import { DataTableViewOptions } from "./data-table-view-options";
 
-type DataTableProps<TValue> = {
-  columns: ColumnDef<AnimalType, TValue>[];
-  data: AnimalType[];
-  type: "animal";
+interface DataTableProps<TData, TValue> {
   role: UserRole;
-};
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
 
-export function DataTable<TValue>({
+  renderCard: (args: { item: TData; select: () => void }) => React.ReactNode;
+
+  renderDialog?: (args: {
+    selected: TData;
+    open: boolean;
+    setOpen: (open: boolean) => void;
+  }) => React.ReactNode;
+}
+
+export function DataTable<TData, TValue>({
+  role,
   columns,
   data,
-  type,
-  role,
-}: DataTableProps<TValue>) {
+  renderCard,
+  renderDialog,
+}: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
   const [displayType, setDisplayType] = React.useState<"table" | "card">(
     role === "ADMIN" || role === "PET_SITTER" ? "table" : "card",
   );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [selectedItem, setSelectedItem] = React.useState<
-    AnimalType | undefined
-  >(undefined);
 
-  const handleSetOpen = (open: boolean) => {
-    if (!open) {
-      setSelectedItem(undefined);
-    }
-  };
+  const [selectedItem, setSelectedItem] = React.useState<TData | undefined>(
+    undefined,
+  );
 
-  const table = useReactTable({
+  const table = useReactTable<TData>({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
@@ -65,40 +65,36 @@ export function DataTable<TValue>({
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
-    state: {
-      sorting,
-      columnVisibility,
-    },
+    state: { sorting, columnVisibility },
   });
+
+  const setOpen = (open: boolean) => {
+    if (!open) setSelectedItem(undefined);
+  };
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-end gap-2">
-        {(role === "ADMIN" || role === "PET_SITTER") && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() =>
-              setDisplayType(displayType === "table" ? "card" : "table")
-            }
-          >
-            {displayType === "table" ? "Voir en carte" : "Voir en table"}
-          </Button>
-        )}
-        {displayType === "table" && <DataTableViewOptions table={table} />}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() =>
+            setDisplayType(displayType === "table" ? "card" : "table")
+          }
+        >
+          {displayType === "table" ? "Voir en carte" : "Voir en table"}
+        </Button>
+        <DataTableViewOptions table={table} />
       </div>
       {displayType === "card" ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {table.getRowModel().rows?.length ? (
-            table
-              .getRowModel()
-              .rows.map((row) => (
-                <AnimalCard
-                  key={row.original.id}
-                  animal={row.original}
-                  onClick={() => setSelectedItem(row.original)}
-                />
-              ))
+            table.getRowModel().rows.map((row) =>
+              renderCard({
+                item: row.original,
+                select: () => setSelectedItem(row.original),
+              }),
+            )
           ) : (
             <p className="col-span-full py-8 text-center text-muted-foreground">
               Aucun résultat.
@@ -133,9 +129,7 @@ export function DataTable<TValue>({
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
                     onClick={() => {
-                      if (type === "animal") {
-                        setSelectedItem(row.original);
-                      }
+                      setSelectedItem(row.original);
                     }}
                   >
                     {row.getVisibleCells().map((cell) => (
@@ -162,14 +156,12 @@ export function DataTable<TValue>({
           </Table>
         </div>
       )}
+
       <DataTablePagination table={table} />
-      {type === "animal" && selectedItem && (
-        <AnimalDialog
-          animal={selectedItem}
-          open={!!selectedItem}
-          setOpen={handleSetOpen}
-        />
-      )}
+
+      {selectedItem &&
+        renderDialog &&
+        renderDialog({ selected: selectedItem, open: true, setOpen })}
     </div>
   );
 }
