@@ -10,10 +10,10 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getSession } from "@/lib/auth-server";
-import { getUserById } from "@/server/actions/user.action";
+import { getUser } from "@/server/actions/user.action";
 import { Mail, User } from "lucide-react";
 import Link from "next/link";
-import { AnimalDataTable } from "../../../animal/components/animals-data-table";
+import { AnimalDataTable } from "../../../animal/components/animal-data-table";
 import { UserActions } from "./user-actions";
 
 type UserDetailPageProps = {
@@ -24,7 +24,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
   const { id } = await params;
   const session = await getSession();
 
-  const userResult = await getUserById({ id });
+  const userResult = await getUser({ id });
   if (userResult.serverError) {
     return <ServerError message={userResult.serverError} />;
   }

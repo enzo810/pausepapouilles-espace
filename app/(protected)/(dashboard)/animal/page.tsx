@@ -8,7 +8,7 @@ import {
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
-import { AnimalDataTable } from "./components/animals-data-table";
+import { AnimalDataTable } from "./components/animal-data-table";
 
 export default async function AnimalPage() {
   const session = await getSession();

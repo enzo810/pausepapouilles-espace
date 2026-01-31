@@ -146,6 +146,9 @@ export const getAnimals = authAction.action(async ({ ctx }) => {
       orderBy: {
         createdAt: "desc",
       },
+      include: {
+        user: true,
+      },
     });
 
     return {

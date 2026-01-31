@@ -1,7 +1,6 @@
 "use client";
 
 import { DeleteItemDialog } from "@/components/delete-item-dialog";
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -14,8 +13,7 @@ import { displayUserRoleValues } from "@/lib/utils";
 import { deleteUser, updateUserRole } from "@/server/actions/user.action";
 import { UserType } from "@/types/UserType";
 import { useMutation } from "@tanstack/react-query";
-import { Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import { toast } from "sonner";
 
 interface UserActionsProps {

@@ -3,8 +3,8 @@
 import { DataTable } from "@/components/data-table/data-table";
 import { UserRole } from "@/generated/prisma/enums";
 import { UsersType } from "@/types/UserType";
-import { useRouter } from "next/navigation";
-import { columns } from "./users-columns";
+import { useRouter } from "nextjs-toploader/app";
+import { columns } from "./user-columns";
 
 type UserDataTableProps = {
   users: UsersType;

@@ -2,13 +2,9 @@
 
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { UserDialog } from "@/components/user-dialog";
 import { displayUserRoleValues } from "@/lib/utils";
 import { UserType } from "@/types/UserType";
 import { ColumnDef } from "@tanstack/react-table";
-import { Pencil } from "lucide-react";
-import { useState } from "react";
 
 export const columns: ColumnDef<UserType>[] = [
   {
@@ -16,20 +12,42 @@ export const columns: ColumnDef<UserType>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Prénom" />
     ),
-    cell: ({ row }) => row.getValue("firstname") || "-",
+    cell: ({ row }) => {
+      const value = row.getValue("firstname");
+      return value != null && value !== "" ? (
+        <span>{String(value)}</span>
+      ) : (
+        <span className="opacity-30">Non défini</span>
+      );
+    },
   },
   {
     accessorKey: "lastname",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Nom" />
     ),
-    cell: ({ row }) => row.getValue("lastname") || "-",
+    cell: ({ row }) => {
+      const value = row.getValue("lastname");
+      return value != null && value !== "" ? (
+        <span>{String(value)}</span>
+      ) : (
+        <span className="opacity-30">Non défini</span>
+      );
+    },
   },
   {
     accessorKey: "email",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Email" />
     ),
+    cell: ({ row }) => {
+      const value = row.getValue("email");
+      return value != null && value !== "" ? (
+        <span>{String(value)}</span>
+      ) : (
+        <span className="opacity-30">Non défini</span>
+      );
+    },
   },
   {
     accessorKey: "role",
@@ -37,7 +55,10 @@ export const columns: ColumnDef<UserType>[] = [
       <DataTableColumnHeader column={column} title="Rôle" />
     ),
     cell: ({ row }) => {
-      const role = row.getValue("role") as UserType["role"];
+      const role = row.getValue("role") as UserType["role"] | null;
+      if (role == null) {
+        return <span className="opacity-30">Non défini</span>;
+      }
       const variants: Record<
         UserType["role"],
         "default" | "secondary" | "outline"
@@ -57,12 +78,11 @@ export const columns: ColumnDef<UserType>[] = [
       <DataTableColumnHeader column={column} title="Créé le" />
     ),
     cell: ({ row }) => {
-      const date = row.getValue("createdAt") as Date;
-      return new Date(date).toLocaleDateString("fr-FR", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      });
+      return (
+        <span>
+          {new Date(row.getValue("createdAt")).toLocaleDateString("fr-FR")}
+        </span>
+      );
     },
   },
   {
@@ -71,12 +91,11 @@ export const columns: ColumnDef<UserType>[] = [
       <DataTableColumnHeader column={column} title="Modifié le" />
     ),
     cell: ({ row }) => {
-      const date = row.getValue("updatedAt") as Date;
-      return new Date(date).toLocaleDateString("fr-FR", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      });
+      return (
+        <span>
+          {new Date(row.getValue("createdAt")).toLocaleDateString("fr-FR")}
+        </span>
+      );
     },
   },
 ];

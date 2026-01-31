@@ -77,7 +77,7 @@ export const deleteUser = adminAction
     }
   });
 
-export const getUserById = petSitterAction
+export const getUser = petSitterAction
   .inputSchema(z.object({ id: z.string() }))
   .action(async ({ ctx, parsedInput: { id } }) => {
     try {

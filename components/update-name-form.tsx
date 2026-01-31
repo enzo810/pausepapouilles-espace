@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 
 const formSchema = z.object({
   name: z.string().min(3, "Le nom doit faire au moins 3 caractères"),

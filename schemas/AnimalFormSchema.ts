@@ -1,12 +1,6 @@
 import { assessmentValues, genderValues, speciesValues } from "@/lib/constants";
 import { z } from "zod";
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
-
-const fileSchema = z.file().refine((file) => file.size <= MAX_FILE_SIZE, {
-  message: "L'image ne doit pas dépasser 5 Mo",
-});
-
 export const CreateAnimalFormSchema = z.object({
   name: z.string().min(1, "Le nom est requis"),
   age: z.number().int().min(0, "L'âge doit être un nombre positif").optional(),

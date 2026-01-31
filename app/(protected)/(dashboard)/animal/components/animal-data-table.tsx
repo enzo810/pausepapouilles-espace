@@ -5,7 +5,7 @@ import { AnimalDialog } from "@/components/animal-dialog";
 import { DataTable } from "@/components/data-table/data-table";
 import { UserRole } from "@/generated/prisma/enums";
 import { AnimalsType } from "@/types/AnimalTypes";
-import { columns } from "./animals-columns";
+import { columns } from "./animal-columns";
 
 type AnimalDataTableProps = {
   animals: AnimalsType;
