@@ -101,7 +101,7 @@ export function AnimalForm({ setOpen, animal, userId, type }: AnimalFormProps) {
       healthIssues: animal?.healthIssues || false,
       careInstructions: animal?.careInstructions || "",
       additionalNotes: animal?.additionalNotes || "",
-      userId: undefined,
+      userId: type === "create" && userId ? userId : undefined,
       formData: undefined,
       imageUrl: undefined,
     },

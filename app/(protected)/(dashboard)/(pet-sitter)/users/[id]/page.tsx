@@ -136,7 +136,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
       <AnimalDataTable
         animals={user.animals}
         role={user.role}
-        createButton={<CreateAnimalDialog />}
+        createButton={<CreateAnimalDialog userId={user.id} />}
         customColumns={true}
       />
     </div>
