@@ -42,6 +42,8 @@ export const CreateAnimalFormSchema = z.object({
     .nullable(),
 });
 
-export const UpdateAnimalFormSchema = CreateAnimalFormSchema.extend({
+export const UpdateAnimalFormSchema = CreateAnimalFormSchema.omit({
+  userId: true,
+}).extend({
   id: z.string(),
 });

@@ -128,6 +128,7 @@ export const getUser = petSitterAction
     }
   });
 
+// Update self profile
 export const updateProfile = authAction
   .inputSchema(UpdateProfileFormSchema)
   .action(async ({ ctx, parsedInput: { firstname, lastname } }) => {

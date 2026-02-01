@@ -32,7 +32,7 @@ export function CreateAnimalDialog({ userId }: { userId?: string }) {
             votre profil.
           </DialogDescription>
         </DialogHeader>
-        <AnimalForm setOpen={setOpen} userId={userId} />
+        <AnimalForm setOpen={setOpen} userId={userId} type="create" />
       </DialogContent>
     </Dialog>
   );

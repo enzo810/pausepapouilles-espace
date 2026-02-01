@@ -54,12 +54,12 @@ interface AnimalFormProps {
   setOpen?: (open: boolean) => void;
   animal?: AnimalType;
   userId?: string;
+  type: "create" | "update";
 }
 
-export function AnimalForm({ setOpen, animal, userId }: AnimalFormProps = {}) {
+export function AnimalForm({ setOpen, animal, userId, type }: AnimalFormProps) {
   const { data: session } = useSession();
   const router = useRouter();
-  const isEditMode = !!animal;
   const dialogContainer = useDialogContainer();
 
   const {
@@ -101,7 +101,7 @@ export function AnimalForm({ setOpen, animal, userId }: AnimalFormProps = {}) {
       healthIssues: animal?.healthIssues || false,
       careInstructions: animal?.careInstructions || "",
       additionalNotes: animal?.additionalNotes || "",
-      userId: animal?.userId || userId || undefined,
+      userId: undefined,
       formData: undefined,
       imageUrl: undefined,
     },
@@ -155,7 +155,7 @@ export function AnimalForm({ setOpen, animal, userId }: AnimalFormProps = {}) {
       formDataWithFile.append("file", blob);
     }
 
-    if (isEditMode && animal) {
+    if (type === "update" && animal) {
       await mutateUpdateAnimal({
         ...values,
         id: animal.id,
@@ -563,59 +563,63 @@ export function AnimalForm({ setOpen, animal, userId }: AnimalFormProps = {}) {
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="userId"
-            render={({ field }) => {
-              const users = usersData ?? [];
-              const selectedUser = users.find((u) => u.id === field.value);
-              return (
-                <FormItem>
-                  <FormLabel>Propriétaire</FormLabel>
-                  <FormControl>
-                    <Combobox
-                      items={users}
-                      modal={true}
-                      value={selectedUser ?? null}
-                      onValueChange={(user) => field.onChange(user?.id ?? null)}
-                      itemToStringLabel={(user) => user.name ?? ""}
-                      isItemEqualToValue={(item, value) =>
-                        item?.id === value?.id
-                      }
-                    >
-                      <ComboboxInput
-                        placeholder="Sélectionner le propriétaire"
-                        showClear
-                      />
-                      <ComboboxContent container={dialogContainer}>
-                        {usersError ? (
-                          <ComboboxStatus>
-                            Une erreur est survenue
-                          </ComboboxStatus>
-                        ) : usersLoading ? (
-                          <ComboboxStatus>Chargement...</ComboboxStatus>
-                        ) : (
-                          <>
-                            <ComboboxEmpty>
-                              Aucun propriétaire trouvé.
-                            </ComboboxEmpty>
-                            <ComboboxList>
-                              {(user) => (
-                                <ComboboxItem key={user.id} value={user}>
-                                  {user.name}
-                                </ComboboxItem>
-                              )}
-                            </ComboboxList>
-                          </>
-                        )}
-                      </ComboboxContent>
-                    </Combobox>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              );
-            }}
-          />
+          {type === "create" && (
+            <FormField
+              control={form.control}
+              name="userId"
+              render={({ field }) => {
+                const users = usersData ?? [];
+                const selectedUser = users.find((u) => u.id === field.value);
+                return (
+                  <FormItem>
+                    <FormLabel>Propriétaire</FormLabel>
+                    <FormControl>
+                      <Combobox
+                        items={users}
+                        modal={true}
+                        value={selectedUser ?? null}
+                        onValueChange={(user) =>
+                          field.onChange(user?.id ?? null)
+                        }
+                        itemToStringLabel={(user) => user.name ?? ""}
+                        isItemEqualToValue={(item, value) =>
+                          item?.id === value?.id
+                        }
+                      >
+                        <ComboboxInput
+                          placeholder="Sélectionner le propriétaire"
+                          showClear
+                        />
+                        <ComboboxContent container={dialogContainer}>
+                          {usersError ? (
+                            <ComboboxStatus>
+                              Une erreur est survenue
+                            </ComboboxStatus>
+                          ) : usersLoading ? (
+                            <ComboboxStatus>Chargement...</ComboboxStatus>
+                          ) : (
+                            <>
+                              <ComboboxEmpty>
+                                Aucun propriétaire trouvé.
+                              </ComboboxEmpty>
+                              <ComboboxList>
+                                {(user) => (
+                                  <ComboboxItem key={user.id} value={user}>
+                                    {user.name}
+                                  </ComboboxItem>
+                                )}
+                              </ComboboxList>
+                            </>
+                          )}
+                        </ComboboxContent>
+                      </Combobox>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
+            />
+          )}
 
           <FormField
             control={form.control}
@@ -633,10 +637,10 @@ export function AnimalForm({ setOpen, animal, userId }: AnimalFormProps = {}) {
           <Field>
             <Button type="submit" disabled={isPending}>
               {isPending
-                ? isEditMode
+                ? type === "update"
                   ? "Mise à jour..."
                   : "Création..."
-                : isEditMode
+                : type === "update"
                   ? "Mettre à jour"
                   : "Créer l'animal"}
             </Button>

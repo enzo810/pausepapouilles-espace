@@ -76,23 +76,34 @@ export const updateAnimal = authAction
         where: { id },
       });
 
-      if (!existingAnimal || existingAnimal.userId !== ctx.session.user.id) {
-        throw new ctx.ActionError("Animal non trouvé ou accès non autorisé");
+      if (!existingAnimal) {
+        throw new ctx.ActionError("Animal non trouvé");
+      }
+
+      const isPetSitterResult = await isPetSitter(ctx.session.user.id);
+
+      if (
+        !isPetSitterResult.data?.isPetSitter &&
+        existingAnimal?.userId !== ctx.session.user.id
+      ) {
+        throw new ctx.ActionError(
+          "Vous n'avez pas les droits pour mettre à jour cet animal",
+        );
       }
 
       const { formData, ...parsedAnimalData } = animalData;
 
-      const isPetSitterResult = await isPetSitter(ctx.session.user.id);
-
       const animal = await prisma.animal.update({
-        where: { id },
+        where: {
+          ...(!isPetSitterResult.data?.isPetSitter && {
+            userId: ctx.session.user.id,
+          }),
+          id,
+        },
         data: {
           ...parsedAnimalData,
           imageUrl: undefined,
-          userId:
-            isPetSitterResult.data?.isPetSitter && animalData?.userId
-              ? animalData.userId
-              : undefined,
+          userId: undefined,
         },
       });
 
@@ -139,9 +150,13 @@ export const updateAnimal = authAction
 
 export const getAnimals = authAction.action(async ({ ctx }) => {
   try {
+    const isPetSitterResult = await isPetSitter(ctx.session.user.id);
+
     const animals = await prisma.animal.findMany({
       where: {
-        userId: ctx.session.user.id,
+        ...(!isPetSitterResult.data?.isPetSitter && {
+          userId: ctx.session.user.id,
+        }),
       },
       orderBy: {
         createdAt: "desc",
@@ -168,15 +183,33 @@ export const deleteAnimal = authAction
   .action(async ({ ctx, parsedInput: { id } }) => {
     try {
       const existingAnimal = await prisma.animal.findUnique({
-        where: { id },
+        where: {
+          id,
+        },
       });
 
-      if (!existingAnimal || existingAnimal.userId !== ctx.session.user.id) {
-        throw new ctx.ActionError("Animal non trouvé ou accès non autorisé");
+      if (!existingAnimal) {
+        throw new ctx.ActionError("Animal non trouvé");
+      }
+
+      const isPetSitterResult = await isPetSitter(ctx.session.user.id);
+
+      if (
+        !isPetSitterResult.data?.isPetSitter &&
+        existingAnimal?.userId !== ctx.session.user.id
+      ) {
+        throw new ctx.ActionError(
+          "Vous n'avez pas les droits pour supprimer cet animal",
+        );
       }
 
       const animalToDelete = await prisma.animal.findUnique({
-        where: { id },
+        where: {
+          ...(!isPetSitterResult.data?.isPetSitter && {
+            userId: ctx.session.user.id,
+          }),
+          id,
+        },
       });
 
       if (animalToDelete && animalToDelete.imageUrl) {

@@ -80,7 +80,7 @@ export function AnimalDialog({
               <ArrowLeft className="h-4 w-4 mr-2" />
               Retour
             </Button>
-            <AnimalForm setOpen={setOpen} animal={animal} />
+            <AnimalForm setOpen={setOpen} animal={animal} type="update" />
           </>
         ) : (
           <>
