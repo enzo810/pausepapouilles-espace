@@ -10,7 +10,7 @@ export default async function ProfileLayout({
 }) {
   const session = await getSession();
 
-  // await onboardingMiddleware();
+  await onboardingMiddleware();
 
   return (
     <div>

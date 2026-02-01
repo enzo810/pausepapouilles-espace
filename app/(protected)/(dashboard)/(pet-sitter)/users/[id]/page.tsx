@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { InfoRow } from "@/components/ui/info-row";
+import { getSession } from "@/lib/auth-server";
 import { displayUserRoleValues } from "@/lib/utils";
 import { getUser } from "@/server/actions/user.action";
 import {
@@ -44,6 +45,7 @@ function getDisplayName(user: {
 
 export default async function UserDetailPage({ params }: UserDetailPageProps) {
   const { id } = await params;
+  const session = await getSession();
 
   const userResult = await getUser({ id });
   if (userResult.serverError || !userResult.data?.user) {
@@ -54,91 +56,95 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
   const displayName = getDisplayName(user);
 
   return (
-    <div className="flex flex-col">
-      <div className="space-y-1">
-        <h2 className="text-2xl font-bold tracking-tight">
-          Informations de l'utilisateur
-        </h2>
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink asChild>
-                <Link href="/users">Utilisateurs</Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>{displayName}</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-      </div>
+    session && (
+      <div className="flex flex-col">
+        <div className="space-y-1">
+          <h2 className="text-2xl font-bold tracking-tight">
+            Informations de l'utilisateur
+          </h2>
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href="/users">Utilisateurs</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>{displayName}</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
 
-      <div className="flex items-center justify-end mb-6">
-        <UserActions user={user} />
-      </div>
-      <Card className="mb-12">
-        <CardHeader className="sr-only">
-          <CardTitle>Informations de l'utilisateur</CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <InfoRow label="Prénom" value={user.firstname} icon={User} />
-          <InfoRow label="Nom" value={user.lastname} icon={User} />
-          <InfoRow label="Email" value={user.email} icon={Mail} />
-          <InfoRow
-            label="Rôle"
-            value={displayUserRoleValues(user.role)}
-            icon={Shield}
-          />
-          <InfoRow
-            label="Statut email"
-            icon={MailCheck}
-            value={
-              user.emailVerified ? (
-                <span className="flex items-center gap-1.5 text-green-600">
-                  <CheckCircle className="size-4" />
-                  Vérifié
-                </span>
-              ) : (
-                <span className="flex items-center gap-1.5 text-red-600">
-                  <XCircle className="size-4" />
-                  Non vérifié
-                </span>
-              )
-            }
-          />
-          <InfoRow
-            label="Compte créé le"
-            value={new Date(user.createdAt).toLocaleDateString("fr-FR", {
-              day: "numeric",
-              month: "long",
-              year: "numeric",
-            })}
-            icon={Calendar}
-          />
-          <InfoRow
-            label="Dernière modification"
-            value={new Date(user.updatedAt).toLocaleDateString("fr-FR", {
-              day: "numeric",
-              month: "long",
-              year: "numeric",
-            })}
-            icon={Calendar}
-          />
-          <InfoRow
-            label="Nombre d'animaux"
-            value={user.animals?.length ?? 0}
-            icon={PawPrint}
-          />
-        </CardContent>
-      </Card>
+        {session.user.role == "ADMIN" && (
+          <div className="flex items-center justify-end mb-6">
+            <UserActions user={user} />
+          </div>
+        )}
+        <Card className="mb-12">
+          <CardHeader className="sr-only">
+            <CardTitle>Informations de l'utilisateur</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <InfoRow label="Prénom" value={user.firstname} icon={User} />
+            <InfoRow label="Nom" value={user.lastname} icon={User} />
+            <InfoRow label="Email" value={user.email} icon={Mail} />
+            <InfoRow
+              label="Rôle"
+              value={displayUserRoleValues(user.role)}
+              icon={Shield}
+            />
+            <InfoRow
+              label="Statut email"
+              icon={MailCheck}
+              value={
+                user.emailVerified ? (
+                  <span className="flex items-center gap-1.5 text-green-600">
+                    <CheckCircle className="size-4" />
+                    Vérifié
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1.5 text-red-600">
+                    <XCircle className="size-4" />
+                    Non vérifié
+                  </span>
+                )
+              }
+            />
+            <InfoRow
+              label="Compte créé le"
+              value={new Date(user.createdAt).toLocaleDateString("fr-FR", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })}
+              icon={Calendar}
+            />
+            <InfoRow
+              label="Dernière modification"
+              value={new Date(user.updatedAt).toLocaleDateString("fr-FR", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })}
+              icon={Calendar}
+            />
+            <InfoRow
+              label="Nombre d'animaux"
+              value={user.animals?.length ?? 0}
+              icon={PawPrint}
+            />
+          </CardContent>
+        </Card>
 
-      <AnimalDataTable
-        animals={user.animals}
-        role={user.role}
-        createButton={<CreateAnimalDialog userId={user.id} />}
-        customColumns={true}
-      />
-    </div>
+        <AnimalDataTable
+          animals={user.animals}
+          role={session.user.role}
+          createButton={<CreateAnimalDialog userId={user.id} />}
+          customColumns={true}
+        />
+      </div>
+    )
   );
 }

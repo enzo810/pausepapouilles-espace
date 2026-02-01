@@ -22,7 +22,7 @@ const options = {
           to: user.email,
           subject: "Approbation du changement d'email",
           text: `Cliquez sur le lien pour approuver le changement vers ${newEmail} : ${url}`,
-          from: "noreply@enzo-dev.com",
+          from: "pause-papouilles@enzo-dev.com",
         });
       },
     },
@@ -33,7 +33,7 @@ const options = {
         to: user.email,
         subject: "Vérifiez votre adresse email",
         text: `Cliquez sur le lien pour vérifier votre email : ${url}`,
-        from: "noreply@enzo-dev.com",
+        from: "pause-papouilles@enzo-dev.com",
       });
     },
   },
@@ -53,7 +53,7 @@ const options = {
           to: email,
           subject: "Accédez à votre compte",
           text: `Cliquez pour accéder à votre compte : ${url}?token=${token}`,
-          from: "noreply@enzo-dev.com",
+          from: "pause-papouilles@enzo-dev.com",
         });
       },
     }),

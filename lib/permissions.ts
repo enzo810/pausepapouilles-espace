@@ -17,6 +17,7 @@ const PET_SITTER = ac.newRole({
 
 const ADMIN = ac.newRole({
   user: ["list", "set-role", "delete"],
+  session: ["revoke"],
 });
 
 export { ADMIN, CLIENT, PET_SITTER };

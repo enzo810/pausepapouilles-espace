@@ -27,7 +27,7 @@ export function InfoRow({
         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
           {label}
         </p>
-        <div className="font-medium mt-0.5">{displayValue}</div>
+        <div className="font-medium mt-0.5 text-sm">{displayValue}</div>
       </div>
     </div>
   );

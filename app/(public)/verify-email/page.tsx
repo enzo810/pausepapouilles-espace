@@ -18,7 +18,7 @@ export default async function VerifyPage(props: {
         {email ? (
           <CardDescription>
             Nous vous avons envoyé un email de vérification à {email}. Veuillez
-            cliquer sur le lien pour vérifier votre compte.
+            cliquer sur le lien pour accéder à votre compte.
           </CardDescription>
         ) : null}
       </CardHeader>

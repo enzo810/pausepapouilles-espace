@@ -82,7 +82,7 @@ export function AnimalForm({ setOpen, animal, userId, type }: AnimalFormProps) {
     resolver: zodResolver(CreateAnimalFormSchema),
     defaultValues: {
       name: animal?.name || "",
-      age: animal?.age || 0,
+      age: animal?.age || undefined,
       birthDate: animal?.birthDate || undefined,
       gender: animal?.gender || "MALE",
       species: animal?.species || undefined,
@@ -217,9 +217,11 @@ export function AnimalForm({ setOpen, animal, userId, type }: AnimalFormProps) {
                   <Input
                     type="number"
                     {...field}
-                    onChange={(e) =>
-                      field.onChange(parseInt(e.target.value) || 0)
-                    }
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      field.onChange(value === "" ? null : parseFloat(value));
+                    }}
+                    value={field.value ?? ""}
                     placeholder="Âge en années"
                   />
                 </FormControl>
@@ -590,63 +592,65 @@ export function AnimalForm({ setOpen, animal, userId, type }: AnimalFormProps) {
             )}
           />
 
-          {type === "create" && (
-            <FormField
-              control={form.control}
-              name="userId"
-              render={({ field }) => {
-                const users = usersData ?? [];
-                const selectedUser = users.find((u) => u.id === field.value);
-                return (
-                  <FormItem>
-                    <FormLabel>Propriétaire</FormLabel>
-                    <FormControl>
-                      <Combobox
-                        items={users}
-                        modal={true}
-                        value={selectedUser ?? null}
-                        onValueChange={(user) =>
-                          field.onChange(user?.id ?? null)
-                        }
-                        itemToStringLabel={(user) => user.name ?? ""}
-                        isItemEqualToValue={(item, value) =>
-                          item?.id === value?.id
-                        }
-                      >
-                        <ComboboxInput
-                          placeholder="Sélectionner le propriétaire"
-                          showClear
-                        />
-                        <ComboboxContent container={dialogContainer}>
-                          {usersError ? (
-                            <ComboboxStatus>
-                              Une erreur est survenue
-                            </ComboboxStatus>
-                          ) : usersLoading ? (
-                            <ComboboxStatus>Chargement...</ComboboxStatus>
-                          ) : (
-                            <>
-                              <ComboboxEmpty>
-                                Aucun propriétaire trouvé.
-                              </ComboboxEmpty>
-                              <ComboboxList>
-                                {(user) => (
-                                  <ComboboxItem key={user.id} value={user}>
-                                    {user.name}
-                                  </ComboboxItem>
-                                )}
-                              </ComboboxList>
-                            </>
-                          )}
-                        </ComboboxContent>
-                      </Combobox>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                );
-              }}
-            />
-          )}
+          {type === "create" &&
+            (session?.user.role === "ADMIN" ||
+              session?.user.role === "PET_SITTER") && (
+              <FormField
+                control={form.control}
+                name="userId"
+                render={({ field }) => {
+                  const users = usersData ?? [];
+                  const selectedUser = users.find((u) => u.id === field.value);
+                  return (
+                    <FormItem>
+                      <FormLabel>Propriétaire</FormLabel>
+                      <FormControl>
+                        <Combobox
+                          items={users}
+                          modal={true}
+                          value={selectedUser ?? null}
+                          onValueChange={(user) =>
+                            field.onChange(user?.id ?? null)
+                          }
+                          itemToStringLabel={(user) => user.name ?? ""}
+                          isItemEqualToValue={(item, value) =>
+                            item?.id === value?.id
+                          }
+                        >
+                          <ComboboxInput
+                            placeholder="Sélectionner le propriétaire"
+                            showClear
+                          />
+                          <ComboboxContent container={dialogContainer}>
+                            {usersError ? (
+                              <ComboboxStatus>
+                                Une erreur est survenue
+                              </ComboboxStatus>
+                            ) : usersLoading ? (
+                              <ComboboxStatus>Chargement...</ComboboxStatus>
+                            ) : (
+                              <>
+                                <ComboboxEmpty>
+                                  Aucun propriétaire trouvé.
+                                </ComboboxEmpty>
+                                <ComboboxList>
+                                  {(user) => (
+                                    <ComboboxItem key={user.id} value={user}>
+                                      {user.name}
+                                    </ComboboxItem>
+                                  )}
+                                </ComboboxList>
+                              </>
+                            )}
+                          </ComboboxContent>
+                        </Combobox>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
+              />
+            )}
 
           <FormField
             control={form.control}

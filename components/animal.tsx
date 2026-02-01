@@ -72,9 +72,9 @@ export function Animal({ animal }: AnimalProps) {
           </Link>
         ) : (
           <div
-            className={`flex h-32 w-32 shrink-0 items-center justify-center rounded-xl ${species.gradient} border-2`}
+            className={`flex h-32 w-32 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${species.gradient} border-1`}
           >
-            <species.icon className="h-12 w-12 text-primary/40" />
+            <species.icon className="h-12 w-12 text-gray-600/40 transition-transform" />
           </div>
         )}
 

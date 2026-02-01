@@ -74,11 +74,13 @@ export function UserActions({ user }: UserActionsProps) {
           <SelectValue placeholder="Sélectionner le rôle" />
         </SelectTrigger>
         <SelectContent>
-          {userRoleValues.map((value) => (
-            <SelectItem key={value} value={value}>
-              {displayUserRoleValues(value)}
-            </SelectItem>
-          ))}
+          {userRoleValues
+            .filter((value) => value !== "ADMIN")
+            .map((value) => (
+              <SelectItem key={value} value={value}>
+                {displayUserRoleValues(value)}
+              </SelectItem>
+            ))}
         </SelectContent>
       </Select>
       <DeleteItemDialog

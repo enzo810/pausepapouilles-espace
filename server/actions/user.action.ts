@@ -16,9 +16,9 @@ export const getUsers = petSitterAction.action(async ({ ctx }) => {
         createdAt: "desc",
       },
       where: {
-        // id: {
-        //   not: ctx.session.user.id,
-        // },
+        id: {
+          not: ctx.session.user.id,
+        },
       },
     });
 
@@ -42,6 +42,12 @@ export const updateUserRole = adminAction
       if (id === ctx.session.user.id) {
         throw new ctx.ActionError(
           "Vous ne pouvez pas modifier votre propre rôle",
+        );
+      }
+
+      if (role === "ADMIN") {
+        throw new ctx.ActionError(
+          "Vous ne pouvez pas attribuer le rôle d'administrateur",
         );
       }
 

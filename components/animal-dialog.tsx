@@ -57,7 +57,7 @@ export function AnimalDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-2xl h-[90vh] flex flex-col">
-        <DialogHeader>
+        <DialogHeader className="pb-2">
           <DialogTitle className="hidden">{animal.name}</DialogTitle>
           {isEditing ? (
             <>
