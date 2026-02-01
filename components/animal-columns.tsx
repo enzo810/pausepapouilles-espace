@@ -5,6 +5,7 @@ import {
   displayAssessmentValues,
   displayGenderValues,
   displaySpeciesValues,
+  formatAge,
 } from "@/lib/utils";
 import { AnimalType } from "@/types/AnimalTypes";
 import { ColumnDef } from "@tanstack/react-table";
@@ -86,13 +87,10 @@ export const columns: ColumnDef<AnimalType>[] = [
       />
     ),
     cell: ({ row }) => {
-      const age = row.getValue("age");
-      if (age == null || age === "") return <NotDefined />;
-      const n = age as number;
-      return (
-        <span>
-          {n} an{n > 1 ? "s" : ""}
-        </span>
+      row.getValue("age") ? (
+        <span>{formatAge(row.getValue("age"))}</span>
+      ) : (
+        <NotDefined />
       );
     },
   },
@@ -275,13 +273,10 @@ export const columnsWithoutUser: ColumnDef<AnimalType>[] = [
       />
     ),
     cell: ({ row }) => {
-      const age = row.getValue("age");
-      if (age == null || age === "") return <NotDefined />;
-      const n = age as number;
-      return (
-        <span>
-          {n} an{n > 1 ? "s" : ""}
-        </span>
+      row.getValue("age") ? (
+        <span>{formatAge(row.getValue("age"))}</span>
+      ) : (
+        <NotDefined />
       );
     },
   },
