@@ -1,26 +1,21 @@
 import { PrismaClient } from "@/generated/prisma/client";
+import { ExtendedPrismaClient } from "@/types/Prisma";
 import { PrismaPg } from "@prisma/adapter-pg";
 
-export const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
-  prismaPublic: PrismaClient | undefined;
-  prismaAdmin: PrismaClient | undefined;
+export const prismaClientSingleton = () => {
+  const adapter = new PrismaPg({
+    connectionString: process.env.DATABASE_URL,
+  });
+
+  return new PrismaClient({ adapter }).$extends({});
 };
 
-export const prisma =
-  globalForPrisma.prisma ??
-  (() => {
-    const adapter = new PrismaPg({
-      connectionString: process.env.DATABASE_URL,
-    });
-    return new PrismaClient({
-      adapter,
-      log: process.env.NODE_ENV === "development" ? ["warn"] : ["warn"],
-    });
-  })();
-
-if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = prisma;
+declare global {
+  var prisma: undefined | ExtendedPrismaClient;
 }
 
+const prisma = globalThis.prisma ?? prismaClientSingleton();
+
 export default prisma;
+
+if (process.env.NODE_ENV !== "production") globalThis.prisma = prisma;

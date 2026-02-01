@@ -6,12 +6,12 @@ import {
   magicLink,
 } from "better-auth/plugins";
 import { ADMIN, CLIENT, PET_SITTER } from "./permissions";
-import prismaPublic from "./prisma";
+import adminPrisma from "./prisma-admin";
 import { resend } from "./resend";
 import { extendUser } from "./session-manager";
 
 const options = {
-  database: prismaAdapter(prismaPublic, {
+  database: prismaAdapter(adminPrisma, {
     provider: "postgresql",
   }),
   user: {
