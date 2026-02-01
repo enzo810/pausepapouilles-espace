@@ -23,7 +23,6 @@ import {
   Cake,
   Calendar,
   Car,
-  Cat,
   Clock,
   Cookie,
   Dog,
@@ -37,6 +36,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { genderConfig, speciesConfig } from "./animal/utils";
 import { InfoRow } from "./ui/info-row";
 import { NotDefined } from "./ui/not-defined";
 
@@ -44,23 +44,9 @@ interface AnimalProps {
   animal: AnimalType;
 }
 
-const speciesIcons = {
-  DOG: Dog,
-  CAT: Cat,
-  OTHER: PawPrint,
-};
-
-function formatDate(date: Date | string | null | undefined): string | null {
-  if (!date) return null;
-  return new Date(date).toLocaleDateString("fr-FR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-}
-
 export function Animal({ animal }: AnimalProps) {
-  const SpeciesIcon = speciesIcons[animal.species] || PawPrint;
+  const species = speciesConfig[animal.species];
+  const gender = genderConfig[animal.gender];
 
   return (
     <div className="space-y-6">
@@ -85,8 +71,10 @@ export function Animal({ animal }: AnimalProps) {
             </div>
           </Link>
         ) : (
-          <div className="flex h-32 w-32 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border-2">
-            <SpeciesIcon className="h-12 w-12 text-primary/40" />
+          <div
+            className={`flex h-32 w-32 shrink-0 items-center justify-center rounded-xl ${species.gradient} border-2`}
+          >
+            <species.icon className="h-12 w-12 text-primary/40" />
           </div>
         )}
 
@@ -98,14 +86,7 @@ export function Animal({ animal }: AnimalProps) {
                 animal.otherSpecies ?? undefined,
               )}
             </Badge>
-            <Badge
-              variant="outline"
-              className={
-                animal.gender === "MALE"
-                  ? "bg-blue-50 text-blue-700 border-blue-200"
-                  : "bg-pink-50 text-pink-700 border-pink-200"
-              }
-            >
+            <Badge variant="outline" className={gender.className}>
               {displayGenderValues(animal.gender)}
             </Badge>
           </div>
@@ -120,7 +101,10 @@ export function Animal({ animal }: AnimalProps) {
                 <Cake className="h-4 w-4" />
                 <span>
                   {animal.birthDate ? (
-                    <>Né le {formatDate(animal.birthDate)}</>
+                    <>
+                      Né le{" "}
+                      {new Date(animal.birthDate).toLocaleDateString("fr-FR")}
+                    </>
                   ) : (
                     <NotDefined />
                   )}
@@ -355,12 +339,12 @@ export function Animal({ animal }: AnimalProps) {
                 <InfoRow
                   icon={Clock}
                   label="Créé le"
-                  value={formatDate(animal.createdAt)}
+                  value={new Date(animal.createdAt).toLocaleDateString("fr-FR")}
                 />
                 <InfoRow
                   icon={Clock}
                   label="Modifié le"
-                  value={formatDate(animal.updatedAt)}
+                  value={new Date(animal.updatedAt).toLocaleDateString("fr-FR")}
                 />
               </div>
             </CardContent>

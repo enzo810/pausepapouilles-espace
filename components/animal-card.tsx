@@ -1,29 +1,15 @@
 "use client";
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { displaySpeciesValues } from "@/lib/utils";
 import { AnimalType } from "@/types/AnimalTypes";
-import { Cat, Dog, PawPrint } from "lucide-react";
 import Image from "next/image";
+import { genderConfig, speciesConfig } from "./animal/utils";
 import { Badge } from "./ui/badge";
 
 type AnimalCardProps = {
   animal: AnimalType;
   onClick?: () => void;
-};
-
-const speciesConfig = {
-  DOG: { label: "Chien", icon: Dog, gradient: "from-orange-100 to-orange-200" },
-  CAT: { label: "Chat", icon: Cat, gradient: "from-rose-100 to-pink-200" },
-  OTHER: {
-    label: "Autre",
-    icon: PawPrint,
-    gradient: "from-violet-100 to-purple-200",
-  },
-};
-
-const genderConfig = {
-  MALE: { label: "Mâle", className: "bg-blue-100 text-blue-700" },
-  FEMALE: { label: "Femelle", className: "bg-pink-100 text-pink-700" },
 };
 
 export function AnimalCard({ animal, onClick }: AnimalCardProps) {
@@ -63,7 +49,12 @@ export function AnimalCard({ animal, onClick }: AnimalCardProps) {
           <Badge className={gender.className}>{gender.label}</Badge>
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <span>{species.label}</span>
+          <span>
+            {displaySpeciesValues(
+              animal.species,
+              animal.otherSpecies ?? undefined,
+            )}
+          </span>
           {animal.type && (
             <>
               <span className="text-xs">•</span>
