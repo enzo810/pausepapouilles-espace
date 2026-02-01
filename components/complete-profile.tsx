@@ -24,7 +24,7 @@ import { useRouter } from "nextjs-toploader/app";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { Button } from "./ui/button";
+import { LoadingButton } from "./ui/loading-button";
 
 export function CompleteProfile({
   className,
@@ -101,9 +101,13 @@ export function CompleteProfile({
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full">
+            <LoadingButton
+              type="submit"
+              className="w-full"
+              loading={isUpdating}
+            >
               Valider
-            </Button>
+            </LoadingButton>
           </form>
         </Form>
       </CardContent>

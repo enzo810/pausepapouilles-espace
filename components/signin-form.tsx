@@ -20,11 +20,12 @@ import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "nextjs-toploader/app";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { Button } from "./ui/button";
+import { LoadingButton } from "./ui/loading-button";
 
 export function SigninForm({
   className,
@@ -42,19 +43,30 @@ export function SigninForm({
     },
   });
 
+  const { mutateAsync: signInMutate, isPending: isSigningIn } = useMutation({
+    mutationFn: async (values: z.infer<typeof SigninFormSchema>) => {
+      await authClient.signIn.magicLink(
+        {
+          email: values.email,
+          callbackURL: "/",
+        },
+        {
+          onSuccess: () => {
+            router.push(`/verify-email?email=${values.email}`);
+            router.refresh();
+          },
+          onError: (error) => {
+            toast.error(error.error.message);
+          },
+        },
+      );
+    },
+  });
+
   async function onSubmit(values: z.infer<typeof SigninFormSchema>) {
-    const { error } = await authClient.signIn.magicLink({
-      email: values.email,
-      callbackURL: "/",
+    toast.promise(signInMutate(values), {
+      loading: "Connexion en cours...",
     });
-
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-
-    router.push(`/verify-email?email=${values.email}`);
-    router.refresh();
   }
 
   return (
@@ -87,9 +99,13 @@ export function SigninForm({
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full">
+              <LoadingButton
+                type="submit"
+                className="w-full"
+                loading={isSigningIn}
+              >
                 Se connecter
-              </Button>
+              </LoadingButton>
             </form>
           </Form>
         </CardContent>

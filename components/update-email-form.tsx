@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -22,11 +21,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
+import { useMutation } from "@tanstack/react-query";
 import { CheckCircle2Icon } from "lucide-react";
 import { useRouter } from "nextjs-toploader/app";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
+import { LoadingButton } from "./ui/loading-button";
 
 const formSchema = z.object({
   email: z.email("L'email n'est pas valide"),
@@ -44,23 +45,33 @@ export function UpdateEmailForm() {
 
   const router = useRouter();
 
+  const { mutateAsync: mutateChangeEmail, isPending: isUpdating } = useMutation(
+    {
+      mutationFn: async (values: z.infer<typeof formSchema>) => {
+        await authClient.changeEmail(
+          {
+            newEmail: values.email,
+          },
+          {
+            onSuccess: () => {
+              router.refresh();
+              toast.success("Opération réussie");
+              setDisplayAlert(true);
+            },
+            onError: (error) => {
+              toast.error(error.error.message);
+              setDisplayAlert(false);
+            },
+          },
+        );
+      },
+    },
+  );
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    await authClient.changeEmail(
-      {
-        newEmail: values.email,
-      },
-      {
-        onSuccess: () => {
-          router.refresh();
-          toast.success("Opération réussie");
-          setDisplayAlert(true);
-        },
-        onError: (error) => {
-          toast.error(error.error.message);
-          setDisplayAlert(false);
-        },
-      },
-    );
+    toast.promise(mutateChangeEmail(values), {
+      loading: "Mise à jour en cours...",
+    });
     form.reset();
   }
 
@@ -92,9 +103,13 @@ export function UpdateEmailForm() {
           </CardContent>
 
           <CardFooter className="flex flex-col gap-6">
-            <Button type="submit" className="w-full">
+            <LoadingButton
+              type="submit"
+              className="w-full"
+              loading={isUpdating}
+            >
               Enregistrer
-            </Button>
+            </LoadingButton>
             {displayAlert && (
               <Alert variant="borderless" className="p-0">
                 <CheckCircle2Icon />

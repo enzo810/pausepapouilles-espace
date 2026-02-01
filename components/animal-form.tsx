@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import {
   Combobox,
   ComboboxContent,
@@ -49,6 +48,7 @@ import { useRouter } from "nextjs-toploader/app";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { LoadingButton } from "./ui/loading-button";
 
 interface AnimalFormProps {
   setOpen?: (open: boolean) => void;
@@ -156,18 +156,28 @@ export function AnimalForm({ setOpen, animal, userId, type }: AnimalFormProps) {
     }
 
     if (type === "update" && animal) {
-      await mutateUpdateAnimal({
-        ...values,
-        id: animal.id,
-        formData: formDataWithFile,
-        imageUrl: undefined,
-      });
+      toast.promise(
+        mutateUpdateAnimal({
+          ...values,
+          id: animal.id,
+          formData: formDataWithFile,
+          imageUrl: undefined,
+        }),
+        {
+          loading: "Mise à jour en cours...",
+        },
+      );
     } else {
-      await mutateCreateAnimal({
-        ...values,
-        formData: formDataWithFile,
-        imageUrl: undefined,
-      });
+      toast.promise(
+        mutateCreateAnimal({
+          ...values,
+          formData: formDataWithFile,
+          imageUrl: undefined,
+        }),
+        {
+          loading: "Création en cours...",
+        },
+      );
     }
   }
 
@@ -635,15 +645,9 @@ export function AnimalForm({ setOpen, animal, userId, type }: AnimalFormProps) {
           />
 
           <Field>
-            <Button type="submit" disabled={isPending}>
-              {isPending
-                ? type === "update"
-                  ? "Mise à jour..."
-                  : "Création..."
-                : type === "update"
-                  ? "Mettre à jour"
-                  : "Créer l'animal"}
-            </Button>
+            <LoadingButton type="submit" loading={isUpdating || isCreating}>
+              {type === "update" ? "Mettre à jour" : "Créer l'animal"}
+            </LoadingButton>
             <FieldDescription className="text-center">
               Tous les champs sont obligatoires
             </FieldDescription>

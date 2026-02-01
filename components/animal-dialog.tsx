@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { Animal } from "./animal";
 import { AnimalForm } from "./animal-form";
 import { DeleteItemDialog } from "./delete-item-dialog";
+import { LoadingButton } from "./ui/loading-button";
 
 interface AnimalDialogProps {
   animal: AnimalType;
@@ -26,18 +27,19 @@ export function AnimalDialog({
 }: AnimalDialogProps) {
   const [isEditing, setIsEditing] = useState(false);
 
-  const { mutateAsync: deleteAnimalMutate, status } = useMutation({
-    mutationFn: deleteAnimal,
-    onSuccess: (data) => {
-      if (data?.data?.status === 200) {
-        toast.success(data.data.message);
-        setOpen(false);
-      }
-      if (data?.serverError) {
-        toast.error(data.serverError);
-      }
-    },
-  });
+  const { mutateAsync: deleteAnimalMutate, isPending: isDeleting } =
+    useMutation({
+      mutationFn: deleteAnimal,
+      onSuccess: (data) => {
+        if (data?.data?.status === 200) {
+          toast.success(data.data.message);
+          setOpen(false);
+        }
+        if (data?.serverError) {
+          toast.error(data.serverError);
+        }
+      },
+    });
 
   const handleDelete = () => {
     toast.promise(deleteAnimalMutate({ id: animal.id }), {
@@ -70,18 +72,18 @@ export function AnimalDialog({
             </>
           ) : (
             <div className="flex gap-2">
-              <Button
+              <LoadingButton
                 variant="outline"
                 onClick={() => setIsEditing(true)}
                 className="w-fit"
+                loading={isDeleting}
               >
                 <Pencil className="h-4 w-4 mr-2" />
                 Modifier
-              </Button>
+              </LoadingButton>
               <DeleteItemDialog
                 handleDelete={handleDelete}
                 description="Cette action est irréversible. Cet animal sera définitivement supprimé."
-                disabled={status === "pending"}
               />
             </div>
           )}

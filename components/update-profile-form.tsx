@@ -85,6 +85,7 @@ export function UpdateProfileForm({
                   <p className="min-w-16">Prénom :</p>
                   <FormControl>
                     <Input
+                      disabled={isUpdating}
                       type="text"
                       autoComplete="given-name"
                       {...field}
@@ -106,6 +107,7 @@ export function UpdateProfileForm({
                   <p className="min-w-16">Nom :</p>
                   <FormControl>
                     <Input
+                      disabled={isUpdating}
                       type="text"
                       autoComplete="family-name"
                       {...field}

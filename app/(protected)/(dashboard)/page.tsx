@@ -54,7 +54,7 @@ export default async function HomePage() {
           <AnimalDataTable
             animals={animals}
             role={session.user.role}
-            createButton={<CreateAnimalDialog />}
+            createButton={<CreateAnimalDialog key={"create-animal-dialog"} />}
           />
         </HydrationBoundary>
       </>
