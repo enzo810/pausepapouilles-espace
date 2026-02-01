@@ -32,7 +32,6 @@ model User {
   animals            Animal[]
 
   @@unique([email])
-  @@map("user")
 }
 
 model Session {
