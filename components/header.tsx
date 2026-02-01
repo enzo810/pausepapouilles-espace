@@ -47,12 +47,14 @@ export const Header = ({ user }: { user: User }) => {
                 Profil
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild className="cursor-pointer">
-              <Link href="/users" className="flex items-center gap-2">
-                <Users className="size-4" />
-                Utilisateurs
-              </Link>
-            </DropdownMenuItem>
+            {(user.role === "ADMIN" || user.role === "PET_SITTER") && (
+              <DropdownMenuItem asChild className="cursor-pointer">
+                <Link href="/users" className="flex items-center gap-2">
+                  <Users className="size-4" />
+                  Utilisateurs
+                </Link>
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem asChild className="cursor-pointer">
               <form className="w-full">
                 <button

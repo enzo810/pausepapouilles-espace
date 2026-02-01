@@ -8,167 +8,226 @@ import {
 } from "@/lib/utils";
 import { AnimalType } from "@/types/AnimalTypes";
 import { ColumnDef } from "@tanstack/react-table";
+import { NotDefined } from "./ui/not-defined";
+
+function getColumnLabel(columnId: string): string {
+  return (
+    (columnId === "user" && "Propriétaire") ||
+    (columnId === "name" && "Nom") ||
+    (columnId === "gender" && "Sexe") ||
+    (columnId === "age" && "Âge") ||
+    (columnId === "species" && "Espèce") ||
+    (columnId === "type" && "Type") ||
+    (columnId === "isIdentified" && "Identifié") ||
+    (columnId === "childFriendly" && "Tolérance enfants") ||
+    (columnId === "dogFriendly" && "Tolérance chiens") ||
+    (columnId === "trafficTolerance" && "Tolérance circulation") ||
+    (columnId === "healthIssues" && "Problèmes de santé") ||
+    (columnId === "createdAt" && "Créé le") ||
+    (columnId === "updatedAt" && "Modifié le") ||
+    columnId
+  );
+}
 
 export const columns: ColumnDef<AnimalType>[] = [
   {
     accessorKey: "user",
+    meta: { label: getColumnLabel("user") },
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Propriétaire" />
+      <DataTableColumnHeader
+        column={column}
+        title={getColumnLabel(column.id)}
+      />
     ),
     cell: ({ row }) => {
       const template = `${row.original.user?.name} (${row.original.user?.email})`;
-      return row.original.user ? (
-        <span>{template}</span>
-      ) : (
-        <span className="opacity-30">Non défini</span>
-      );
+      return row.original.user ? <span>{template}</span> : <NotDefined />;
     },
   },
   {
     accessorKey: "name",
+    meta: { label: getColumnLabel("name") },
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Nom" />
+      <DataTableColumnHeader
+        column={column}
+        title={getColumnLabel(column.id)}
+      />
     ),
-    cell: ({ row }) => {
-      return row.getValue("name") ? (
+    cell: ({ row }) =>
+      row.getValue("name") ? (
         <span>{row.getValue("name")}</span>
       ) : (
-        <span className="opacity-30">Non défini</span>
-      );
-    },
+        <NotDefined />
+      ),
   },
   {
     accessorKey: "gender",
+    meta: { label: getColumnLabel("gender") },
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Sexe" />
+      <DataTableColumnHeader
+        column={column}
+        title={getColumnLabel(column.id)}
+      />
     ),
-    cell: ({ row }) => {
-      return row.getValue("gender") ? (
+    cell: ({ row }) =>
+      row.getValue("gender") ? (
         <span>{displayGenderValues(row.getValue("gender"))}</span>
       ) : (
-        <span className="opacity-30">Non défini</span>
-      );
-    },
+        <NotDefined />
+      ),
   },
   {
     accessorKey: "age",
+    meta: { label: getColumnLabel("age") },
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Âge" />
+      <DataTableColumnHeader
+        column={column}
+        title={getColumnLabel(column.id)}
+      />
     ),
     cell: ({ row }) => {
-      if (!row.getValue("age"))
-        return <span className="opacity-30">Non défini</span>;
-      const age = row.getValue("age") as number;
-      return `${age} an${age > 1 ? "s" : ""}`;
+      const age = row.getValue("age");
+      if (age == null || age === "") return <NotDefined />;
+      const n = age as number;
+      return (
+        <span>
+          {n} an{n > 1 ? "s" : ""}
+        </span>
+      );
     },
   },
   {
     accessorKey: "species",
+    meta: { label: getColumnLabel("species") },
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Espèce" />
+      <DataTableColumnHeader
+        column={column}
+        title={getColumnLabel(column.id)}
+      />
     ),
-    cell: ({ row }) => {
-      return row.getValue("species") ? (
+    cell: ({ row }) =>
+      row.getValue("species") ? (
         <span>{displaySpeciesValues(row.getValue("species"))}</span>
       ) : (
-        <span className="opacity-30">Non défini</span>
-      );
-    },
+        <NotDefined />
+      ),
   },
   {
     accessorKey: "type",
+    meta: { label: getColumnLabel("type") },
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Type" />
+      <DataTableColumnHeader
+        column={column}
+        title={getColumnLabel(column.id)}
+      />
     ),
-    cell: ({ row }) => {
-      return row.getValue("type") ? (
+    cell: ({ row }) =>
+      row.getValue("type") ? (
         <span>{row.getValue("type")}</span>
       ) : (
-        <span className="opacity-30">Non défini</span>
-      );
-    },
+        <NotDefined />
+      ),
   },
   {
     accessorKey: "isIdentified",
+    meta: { label: getColumnLabel("isIdentified") },
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Identifié" />
+      <DataTableColumnHeader
+        column={column}
+        title={getColumnLabel(column.id)}
+      />
     ),
-    cell: ({ row }) => {
-      return row.getValue("isIdentified") ? <span>Oui</span> : <span>Non</span>;
-    },
+    cell: ({ row }) =>
+      row.getValue("isIdentified") ? <span>Oui</span> : <span>Non</span>,
   },
   {
     accessorKey: "childFriendly",
+    meta: { label: getColumnLabel("childFriendly") },
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Enfants" />
+      <DataTableColumnHeader
+        column={column}
+        title={getColumnLabel(column.id)}
+      />
     ),
-    cell: ({ row }) => {
-      return row.getValue("childFriendly") ? (
+    cell: ({ row }) =>
+      row.getValue("childFriendly") ? (
         <span>{displayAssessmentValues(row.getValue("childFriendly"))}</span>
       ) : (
-        <span className="opacity-30">Non défini</span>
-      );
-    },
+        <NotDefined />
+      ),
   },
   {
     accessorKey: "dogFriendly",
+    meta: { label: getColumnLabel("dogFriendly") },
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Chiens" />
+      <DataTableColumnHeader
+        column={column}
+        title={getColumnLabel(column.id)}
+      />
     ),
-    cell: ({ row }) => {
-      return row.getValue("dogFriendly") ? (
+    cell: ({ row }) =>
+      row.getValue("dogFriendly") ? (
         <span>{displayAssessmentValues(row.getValue("dogFriendly"))}</span>
       ) : (
-        <span className="opacity-30">Non défini</span>
-      );
-    },
+        <NotDefined />
+      ),
   },
   {
     accessorKey: "trafficTolerance",
+    meta: { label: getColumnLabel("trafficTolerance") },
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Tolérance circulation" />
+      <DataTableColumnHeader
+        column={column}
+        title={getColumnLabel(column.id)}
+      />
     ),
-    cell: ({ row }) => {
-      return row.getValue("trafficTolerance") ? (
+    cell: ({ row }) =>
+      row.getValue("trafficTolerance") ? (
         <span>{displayAssessmentValues(row.getValue("trafficTolerance"))}</span>
       ) : (
-        <span className="opacity-30">Non défini</span>
-      );
-    },
+        <NotDefined />
+      ),
   },
   {
     accessorKey: "healthIssues",
+    meta: { label: getColumnLabel("healthIssues") },
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Problèmes de santé" />
+      <DataTableColumnHeader
+        column={column}
+        title={getColumnLabel(column.id)}
+      />
     ),
-    cell: ({ row }) => {
-      return row.getValue("healthIssues") ? <span>Oui</span> : <span>Non</span>;
-    },
+    cell: ({ row }) =>
+      row.getValue("healthIssues") ? <span>Oui</span> : <span>Non</span>,
   },
   {
     accessorKey: "createdAt",
+    meta: { label: getColumnLabel("createdAt") },
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Créé le" />
+      <DataTableColumnHeader
+        column={column}
+        title={getColumnLabel(column.id)}
+      />
     ),
-    cell: ({ row }) => {
-      return (
-        <span>
-          {new Date(row.getValue("createdAt")).toLocaleDateString("fr-FR")}
-        </span>
-      );
-    },
+    cell: ({ row }) => (
+      <span>
+        {new Date(row.getValue("createdAt")).toLocaleDateString("fr-FR")}
+      </span>
+    ),
   },
   {
     accessorKey: "updatedAt",
+    meta: { label: getColumnLabel("updatedAt") },
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Modifié le" />
+      <DataTableColumnHeader
+        column={column}
+        title={getColumnLabel(column.id)}
+      />
     ),
-    cell: ({ row }) => {
-      return (
-        <span>
-          {new Date(row.getValue("createdAt")).toLocaleDateString("fr-FR")}
-        </span>
-      );
-    },
+    cell: ({ row }) => (
+      <span>
+        {new Date(row.getValue("updatedAt")).toLocaleDateString("fr-FR")}
+      </span>
+    ),
   },
 ];
