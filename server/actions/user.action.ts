@@ -16,9 +16,9 @@ export const getUsers = petSitterAction.action(async ({ ctx }) => {
         createdAt: "desc",
       },
       where: {
-        id: {
-          not: ctx.session.user.id,
-        },
+        // id: {
+        //   not: ctx.session.user.id,
+        // },
       },
     });
 

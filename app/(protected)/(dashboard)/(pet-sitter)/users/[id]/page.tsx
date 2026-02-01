@@ -9,9 +9,19 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getSession } from "@/lib/auth-server";
+import { InfoRow } from "@/components/ui/info-row";
+import { displayUserRoleValues } from "@/lib/utils";
 import { getUser } from "@/server/actions/user.action";
-import { Mail, User } from "lucide-react";
+import {
+  Calendar,
+  CheckCircle,
+  Mail,
+  MailCheck,
+  PawPrint,
+  Shield,
+  User,
+  XCircle,
+} from "lucide-react";
 import Link from "next/link";
 import { AnimalDataTable } from "../../../animal/components/animal-data-table";
 import { UserActions } from "./user-actions";
@@ -20,70 +30,114 @@ type UserDetailPageProps = {
   params: Promise<{ id: string }>;
 };
 
+function getDisplayName(user: {
+  firstname?: string | null;
+  lastname?: string | null;
+  name?: string | null;
+  email: string;
+}): string {
+  if (user.firstname && user.lastname) {
+    return `${user.firstname} ${user.lastname}`;
+  }
+  return user.name || user.email;
+}
+
 export default async function UserDetailPage({ params }: UserDetailPageProps) {
   const { id } = await params;
-  const session = await getSession();
 
   const userResult = await getUser({ id });
-  if (userResult.serverError) {
+  if (userResult.serverError || !userResult.data?.user) {
     return <ServerError message={userResult.serverError} />;
   }
 
-  const user = userResult.data?.user;
+  const user = userResult.data.user;
+  const displayName = getDisplayName(user);
 
   return (
-    <div className="space-y-6">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link href="/users">Utilisateurs</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>
-              {user?.firstname && user?.lastname
-                ? `${user.firstname} ${user.lastname}`
-                : user?.name || user?.email}
-            </BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+    <div className="flex flex-col">
+      <div className="space-y-1">
+        <h2 className="text-2xl font-bold tracking-tight">
+          Informations de l'utilisateur
+        </h2>
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/users">Utilisateurs</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{displayName}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      </div>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <User className="size-5" />
-            {user?.firstname && user?.lastname
-              ? `${user.firstname} ${user.lastname}`
-              : user?.name || "Utilisateur"}
-          </CardTitle>
-          {user && <UserActions user={user} />}
+      <div className="flex items-center justify-end mb-6">
+        <UserActions user={user} />
+      </div>
+      <Card className="mb-12">
+        <CardHeader className="sr-only">
+          <CardTitle>Informations de l'utilisateur</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Mail className="size-4" />
-            <span>{user?.email}</span>
-          </div>
+        <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <InfoRow label="Prénom" value={user.firstname} icon={User} />
+          <InfoRow label="Nom" value={user.lastname} icon={User} />
+          <InfoRow label="Email" value={user.email} icon={Mail} />
+          <InfoRow
+            label="Rôle"
+            value={displayUserRoleValues(user.role)}
+            icon={Shield}
+          />
+          <InfoRow
+            label="Email vérifié"
+            icon={MailCheck}
+            value={
+              user.emailVerified ? (
+                <span className="flex items-center gap-1.5 text-green-600">
+                  <CheckCircle className="size-4" />
+                  Vérifié
+                </span>
+              ) : (
+                <span className="flex items-center gap-1.5 text-orange-500">
+                  <XCircle className="size-4" />
+                  Non vérifié
+                </span>
+              )
+            }
+          />
+          <InfoRow
+            label="Compte créé le"
+            value={new Date(user.createdAt).toLocaleDateString("fr-FR", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })}
+            icon={Calendar}
+          />
+          <InfoRow
+            label="Dernière modification"
+            value={new Date(user.updatedAt).toLocaleDateString("fr-FR", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })}
+            icon={Calendar}
+          />
+          <InfoRow
+            label="Nombre d'animaux"
+            value={user.animals?.length ?? 0}
+            icon={PawPrint}
+          />
         </CardContent>
       </Card>
 
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">
-            Animaux ({user?.animals.length || 0})
-          </h2>
-          <CreateAnimalDialog userId={id} />
-        </div>
-
-        {session && (
-          <AnimalDataTable
-            animals={user?.animals || []}
-            role={session.user.role}
-          />
-        )}
-      </div>
+      <AnimalDataTable
+        animals={user.animals}
+        role={user.role}
+        createButton={<CreateAnimalDialog />}
+      />
     </div>
   );
 }

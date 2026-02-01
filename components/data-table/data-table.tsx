@@ -12,6 +12,7 @@ import {
 
 import { UserRole } from "@/generated/prisma/enums";
 import { flexRender } from "@tanstack/react-table";
+import { Eye } from "lucide-react";
 import React from "react";
 import { Button } from "../ui/button";
 import {
@@ -24,7 +25,6 @@ import {
 } from "../ui/table";
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableViewOptions } from "./data-table-view-options";
-import { Eye } from "lucide-react";
 
 interface DataTableProps<TData, TValue> {
   role: UserRole;
@@ -56,9 +56,7 @@ export function DataTable<TData, TValue>({
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [displayType, setDisplayType] = React.useState<"table" | "card">(
-    (role === "ADMIN" || role === "PET_SITTER") && renderCard
-      ? "table"
-      : "card",
+    role === "ADMIN" || role === "PET_SITTER" ? "table" : "card",
   );
 
   const [selectedItem, setSelectedItem] = React.useState<TData | undefined>(
@@ -82,9 +80,12 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="space-y-6">
-      {(role === "ADMIN" || role === "PET_SITTER") && renderCard && (
-        <div className="flex items-center justify-end gap-2">
-          {displayType === "table" && <DataTableViewOptions table={table} />}
+      <div className="flex items-center justify-end gap-2">
+        {displayType === "table" &&
+          (role === "ADMIN" || role === "PET_SITTER") && (
+            <DataTableViewOptions table={table} />
+          )}
+        {(role === "ADMIN" || role === "PET_SITTER") && renderCard && (
           <Button
             variant="outline"
             onClick={() =>
@@ -94,9 +95,9 @@ export function DataTable<TData, TValue>({
             <Eye className="size-4" />
             {displayType === "table" ? "Voir en carte" : "Voir en table"}
           </Button>
-          {createButton}
-        </div>
-      )}
+        )}
+        {createButton}
+      </div>
       {displayType === "card" && renderCard ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5">
           {table.getRowModel().rows?.length ? (
