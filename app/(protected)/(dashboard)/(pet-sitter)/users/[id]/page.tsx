@@ -1,3 +1,4 @@
+import { AnimalDataTable } from "@/components/animal-data-table";
 import { CreateAnimalDialog } from "@/components/create-animal-dialog";
 import ServerError from "@/components/ServerError";
 import {
@@ -23,7 +24,6 @@ import {
   XCircle,
 } from "lucide-react";
 import Link from "next/link";
-import { AnimalDataTable } from "@/components/animal-data-table";
 import { UserActions } from "./user-actions";
 
 type UserDetailPageProps = {
@@ -91,7 +91,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
             icon={Shield}
           />
           <InfoRow
-            label="Email vérifié"
+            label="Statut email"
             icon={MailCheck}
             value={
               user.emailVerified ? (
@@ -100,7 +100,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
                   Vérifié
                 </span>
               ) : (
-                <span className="flex items-center gap-1.5 text-orange-500">
+                <span className="flex items-center gap-1.5 text-red-600">
                   <XCircle className="size-4" />
                   Non vérifié
                 </span>
@@ -137,6 +137,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
         animals={user.animals}
         role={user.role}
         createButton={<CreateAnimalDialog />}
+        customColumns={true}
       />
     </div>
   );

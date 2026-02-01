@@ -5,22 +5,24 @@ import { AnimalDialog } from "@/components/animal-dialog";
 import { DataTable } from "@/components/data-table/data-table";
 import { UserRole } from "@/generated/prisma/enums";
 import { AnimalsType } from "@/types/AnimalTypes";
-import { columns } from "./animal-columns";
+import { columns, columnsWithoutUser } from "./animal-columns";
 
 type AnimalDataTableProps = {
   animals: AnimalsType;
   role: UserRole;
   createButton?: React.ReactNode;
+  customColumns?: boolean;
 };
 
 export function AnimalDataTable({
   animals,
   role,
   createButton,
+  customColumns = false,
 }: AnimalDataTableProps) {
   return (
     <DataTable
-      columns={columns}
+      columns={customColumns ? columnsWithoutUser : columns}
       data={animals}
       role={role}
       renderCard={({ item, select }) => (
