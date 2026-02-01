@@ -70,6 +70,12 @@ export const deleteUser = adminAction
   .inputSchema(z.object({ id: z.string() }))
   .action(async ({ ctx, parsedInput: { id } }) => {
     try {
+      if (id === ctx.session.user.id) {
+        throw new ctx.ActionError(
+          "Vous ne pouvez pas supprimer votre propre compte",
+        );
+      }
+
       await auth.api.revokeUserSessions({
         body: { userId: id },
         headers: await headers(),
