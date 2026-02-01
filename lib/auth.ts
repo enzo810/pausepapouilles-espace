@@ -20,8 +20,8 @@ const options = {
       sendChangeEmailConfirmation: async ({ user, newEmail, url }) => {
         await resend.emails.send({
           to: user.email,
-          subject: "Approve email change",
-          text: `Click the link to approve the change to ${newEmail}: ${url}`,
+          subject: "Approbation du changement d'email",
+          text: `Cliquez sur le lien pour approuver le changement vers ${newEmail} : ${url}`,
           from: "noreply@enzo-dev.com",
         });
       },
@@ -31,8 +31,8 @@ const options = {
     sendVerificationEmail: async ({ user, url }) => {
       await resend.emails.send({
         to: user.email,
-        subject: "Verify your email address",
-        text: `Click the link to verify your email: ${url}`,
+        subject: "Vérifiez votre adresse email",
+        text: `Cliquez sur le lien pour vérifier votre email : ${url}`,
         from: "noreply@enzo-dev.com",
       });
     },
@@ -51,8 +51,8 @@ const options = {
       sendMagicLink: async ({ email, token, url }) => {
         await resend.emails.send({
           to: email,
-          subject: "Access your account",
-          text: `Click to access your account: ${url}?token=${token}`,
+          subject: "Accédez à votre compte",
+          text: `Cliquez pour accéder à votre compte : ${url}?token=${token}`,
           from: "noreply@enzo-dev.com",
         });
       },

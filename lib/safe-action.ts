@@ -33,7 +33,7 @@ export const petSitterAction = authAction.use(async ({ next, ctx }) => {
   const role = session.user.role;
 
   if (!userId) {
-    throw new ActionError("Session is not valid!");
+    throw new ActionError("La session n'est pas valide.");
   }
   const prismaPetSitter = await prisma.user.findUnique({
     where: { id: userId },
@@ -62,7 +62,7 @@ export const adminAction = authAction.use(async ({ next, ctx }) => {
   const role = session.user.role;
 
   if (!userId) {
-    throw new ActionError("Session is not valid!");
+    throw new ActionError("La session n'est pas valide.");
   }
   const prismaAdmin = await prisma.user.findUnique({
     where: { id: userId },
