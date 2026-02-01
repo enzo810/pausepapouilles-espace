@@ -391,89 +391,106 @@ export function AnimalForm({ setOpen, animal, userId, type }: AnimalFormProps) {
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="childFriendly"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Ami avec les enfants</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionner" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {assessmentValues.map((value) => (
-                      <SelectItem key={value} value={value}>
-                        {displayAssessmentValues(value)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div>
+            <FormLabel className="pb-2">Tolérence</FormLabel>
+            <div className="flex w-full gap-2 flex-wrap border rounded-md p-4">
+              <FormField
+                control={form.control}
+                name="childFriendly"
+                render={({ field }) => (
+                  <FormItem className="flex-1 min-w-0">
+                    <FormLabel className="text-muted-foreground text-sm font-normal">
+                      enfants
+                    </FormLabel>
 
-          <FormField
-            control={form.control}
-            name="dogFriendly"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Ami avec les chiens</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionner" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {assessmentValues.map((value) => (
-                      <SelectItem key={value} value={value}>
-                        {displayAssessmentValues(value)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value ?? ""}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Sélectionner" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {assessmentValues.map((value) => (
+                          <SelectItem key={value} value={value}>
+                            {displayAssessmentValues(value)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
 
-          <FormField
-            control={form.control}
-            name="trafficTolerance"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Tolérance à la circulation</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionner" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {assessmentValues.map((value) => (
-                      <SelectItem key={value} value={value}>
-                        {displayAssessmentValues(value)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="dogFriendly"
+                render={({ field }) => (
+                  <FormItem className="flex-1 min-w-0">
+                    <FormLabel className="text-muted-foreground text-sm font-normal">
+                      chiens
+                    </FormLabel>
+
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value ?? ""}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Sélectionner" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {assessmentValues.map((value) => (
+                          <SelectItem key={value} value={value}>
+                            {displayAssessmentValues(value)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="trafficTolerance"
+                render={({ field }) => (
+                  <FormItem className="flex-1 min-w-0">
+                    <FormLabel className="text-muted-foreground text-sm font-normal">
+                      circulation
+                    </FormLabel>
+
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value ?? ""}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Sélectionner" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {assessmentValues.map((value) => (
+                          <SelectItem key={value} value={value}>
+                            {displayAssessmentValues(value)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
 
           <FormField
             control={form.control}
@@ -649,7 +666,7 @@ export function AnimalForm({ setOpen, animal, userId, type }: AnimalFormProps) {
               {type === "update" ? "Mettre à jour" : "Créer l'animal"}
             </LoadingButton>
             <FieldDescription className="text-center">
-              Tous les champs sont obligatoires
+              Certains champs sont obligatoires
             </FieldDescription>
           </Field>
         </FieldGroup>
