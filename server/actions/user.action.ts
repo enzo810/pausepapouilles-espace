@@ -39,6 +39,12 @@ export const updateUserRole = adminAction
   .inputSchema(z.object({ id: z.string(), role: z.enum(userRoleValues) }))
   .action(async ({ ctx, parsedInput: { id, role } }) => {
     try {
+      if (id === ctx.session.user.id) {
+        throw new ctx.ActionError(
+          "Vous ne pouvez pas modifier votre propre rôle",
+        );
+      }
+
       await auth.api.setRole({
         body: {
           userId: id,
