@@ -1,21 +1,20 @@
 import { PrismaClient } from "@/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { globalForPrisma } from "./prisma";
 
-export const prismaAdmin =
-  globalForPrisma.prismaAdmin ??
-  (() => {
-    const adapter = new PrismaPg({
-      connectionString: process.env.DATABASE_URL,
-    });
-    return new PrismaClient({
-      adapter,
-      log: process.env.NODE_ENV === "development" ? ["warn"] : ["warn"],
-    });
-  })();
+const adminPrismaClientSingleton = () => {
+  const adapter = new PrismaPg({
+    connectionString: process.env.DATABASE_URL,
+  });
 
-if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prismaAdmin = prismaAdmin;
+  return new PrismaClient({ adapter });
+};
+
+declare global {
+  var adminPrisma: undefined | ReturnType<typeof adminPrismaClientSingleton>;
 }
 
-export default prismaAdmin;
+const adminPrisma = globalThis.adminPrisma ?? adminPrismaClientSingleton();
+
+export default adminPrisma;
+
+if (process.env.NODE_ENV !== "production") globalThis.adminPrisma = adminPrisma;
