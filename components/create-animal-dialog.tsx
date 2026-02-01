@@ -13,18 +13,18 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import { AnimalForm } from "./animal-form";
 
-export function CreateAnimalDialog() {
+export function CreateAnimalDialog({ userId }: { userId?: string }) {
   const [open, setOpen] = useState(false);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
-          <Plus className="mr-2 size-4" />
+          <Plus className="size-4" />
           Ajouter un animal
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh]">
         <DialogHeader>
           <DialogTitle>Ajouter un animal</DialogTitle>
           <DialogDescription>
@@ -32,7 +32,7 @@ export function CreateAnimalDialog() {
             votre profil.
           </DialogDescription>
         </DialogHeader>
-        <AnimalForm setOpen={setOpen} />
+        <AnimalForm setOpen={setOpen} userId={userId} type="create" />
       </DialogContent>
     </Dialog>
   );

@@ -2,14 +2,85 @@
 
 import prisma from "@/lib/prisma";
 import { authAction } from "@/lib/safe-action";
+import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from "@/lib/utils";
 import {
   CreateAnimalFormSchema,
   UpdateAnimalFormSchema,
 } from "@/schemas/AnimalFormSchema";
 import { del, put } from "@vercel/blob";
 import { revalidatePath } from "next/cache";
+import sharp from "sharp";
 import { z } from "zod";
 import { isPetSitter } from "./role.action";
+
+function validateImageFile(file: File): { success: boolean; message: string } {
+  if (file.size === 0) {
+    return {
+      success: false,
+      message: "Le fichier est vide",
+    };
+  }
+
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+    return {
+      success: false,
+      message: "Le fichier doit être une image (JPEG, PNG, WebP ou JPG)",
+    };
+  }
+
+  if (file.size >= MAX_IMAGE_SIZE) {
+    return {
+      success: false,
+      message: `L'image ne doit pas dépasser ${MAX_IMAGE_SIZE / 1024 / 1024} Mo`,
+    };
+  } else {
+    return {
+      success: true,
+      message: "L'image est valide",
+    };
+  }
+}
+
+async function encodeImageToWebP(
+  file: File,
+): Promise<
+  { success: true; buffer: Buffer } | { success: false; message: string }
+> {
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    const webpBuffer = await sharp(buffer)
+      .rotate()
+      .resize({
+        width: 2048,
+        height: 2048,
+        fit: "inside",
+        withoutEnlargement: true,
+      })
+      .webp({ quality: 80 })
+      .toBuffer();
+
+    if (webpBuffer.length === 0) {
+      return { success: false, message: "Image invalide" };
+    }
+
+    if (webpBuffer.length > 2 * 1024 * 1024) {
+      return {
+        success: false,
+        message: "L'image encodée ne doit pas dépasser 2 Mo",
+      };
+    }
+
+    return { success: true, buffer: webpBuffer };
+  } catch (error) {
+    console.error("encodeImageToWebP error:", error);
+    return {
+      success: false,
+      message: "Impossible de traiter cette image",
+    };
+  }
+}
 
 export const createAnimal = authAction
   .inputSchema(CreateAnimalFormSchema)
@@ -31,12 +102,27 @@ export const createAnimal = authAction
       });
 
       if (animal) {
-        const file = formData?.get("file") as File;
+        const file = formData?.get("file");
 
-        if (file) {
-          const blob = await put(`animals/${animal.id}`, file, {
-            access: "public",
-          });
+        if (file && file instanceof File) {
+          const validation = validateImageFile(file);
+          if (!validation.success) {
+            throw new ctx.ActionError(validation.message);
+          }
+
+          const encodingResult = await encodeImageToWebP(file);
+          if (!encodingResult.success) {
+            throw new ctx.ActionError(encodingResult.message);
+          }
+
+          const blob = await put(
+            `animals/${animal.id}.webp`,
+            encodingResult.buffer,
+            {
+              access: "public",
+              contentType: "image/webp",
+            },
+          );
 
           const updatedAnimal = await prisma.animal.update({
             where: {
@@ -76,33 +162,59 @@ export const updateAnimal = authAction
         where: { id },
       });
 
-      if (!existingAnimal || existingAnimal.userId !== ctx.session.user.id) {
-        throw new ctx.ActionError("Animal non trouvé ou accès non autorisé");
+      if (!existingAnimal) {
+        throw new ctx.ActionError("Animal non trouvé");
+      }
+
+      const isPetSitterResult = await isPetSitter(ctx.session.user.id);
+
+      if (
+        !isPetSitterResult.data?.isPetSitter &&
+        existingAnimal?.userId !== ctx.session.user.id
+      ) {
+        throw new ctx.ActionError(
+          "Vous n'avez pas les droits pour mettre à jour cet animal",
+        );
       }
 
       const { formData, ...parsedAnimalData } = animalData;
 
-      const isPetSitterResult = await isPetSitter(ctx.session.user.id);
-
       const animal = await prisma.animal.update({
-        where: { id },
+        where: {
+          ...(!isPetSitterResult.data?.isPetSitter && {
+            userId: ctx.session.user.id,
+          }),
+          id,
+        },
         data: {
           ...parsedAnimalData,
           imageUrl: undefined,
-          userId:
-            isPetSitterResult.data?.isPetSitter && animalData?.userId
-              ? animalData.userId
-              : undefined,
+          userId: undefined,
         },
       });
 
       if (animal) {
-        const file = formData?.get("file") as File;
+        const file = formData?.get("file");
 
-        if (file) {
-          const blob = await put(`animals/${animal.id}`, file, {
-            access: "public",
-          });
+        if (file && file instanceof File) {
+          const validation = validateImageFile(file);
+          if (!validation.success) {
+            throw new ctx.ActionError(validation.message);
+          }
+
+          const encodingResult = await encodeImageToWebP(file);
+          if (!encodingResult.success) {
+            throw new ctx.ActionError(encodingResult.message);
+          }
+
+          const blob = await put(
+            `animals/${animal.id}.webp`,
+            encodingResult.buffer,
+            {
+              access: "public",
+              contentType: "image/webp",
+            },
+          );
 
           const updatedAnimal = await prisma.animal.update({
             where: {
@@ -137,72 +249,68 @@ export const updateAnimal = authAction
     }
   });
 
-export const getAnimals = authAction
-  .inputSchema(z.void())
-  .action(async ({ ctx }) => {
-    try {
-      const animals = await prisma.animal.findMany({
-        where: {
+export const getAnimals = authAction.action(async ({ ctx }) => {
+  try {
+    const isPetSitterResult = await isPetSitter(ctx.session.user.id);
+
+    const animals = await prisma.animal.findMany({
+      where: {
+        ...(!isPetSitterResult.data?.isPetSitter && {
           userId: ctx.session.user.id,
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
-      });
+        }),
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        user: true,
+      },
+    });
 
-      return {
-        animals,
-        status: 200,
-      };
-    } catch (e) {
-      console.error(e);
-      throw new ctx.ActionError(
-        "Une erreur est survenue lors de la récupération des animaux",
-      );
-    }
-  });
-
-export const getAnimal = authAction
-  .inputSchema(z.object({ id: z.string() }))
-  .action(async ({ ctx, parsedInput: { id } }) => {
-    try {
-      const animal = await prisma.animal.findUnique({
-        where: { id },
-      });
-
-      if (!animal || animal.userId !== ctx.session.user.id) {
-        throw new ctx.ActionError("Animal non trouvé ou accès non autorisé");
-      }
-
-      return {
-        animal,
-        status: 200,
-      };
-    } catch (e) {
-      console.error(e);
-      if (e instanceof Error && e.message.includes("non trouvé")) {
-        throw e;
-      }
-      throw new ctx.ActionError(
-        "Une erreur est survenue lors de la récupération de l'animal",
-      );
-    }
-  });
+    return {
+      animals,
+      status: 200,
+    };
+  } catch (e) {
+    console.error(e);
+    throw new ctx.ActionError(
+      "Une erreur est survenue lors de la récupération des animaux",
+    );
+  }
+});
 
 export const deleteAnimal = authAction
   .inputSchema(z.object({ id: z.string() }))
   .action(async ({ ctx, parsedInput: { id } }) => {
     try {
       const existingAnimal = await prisma.animal.findUnique({
-        where: { id },
+        where: {
+          id,
+        },
       });
 
-      if (!existingAnimal || existingAnimal.userId !== ctx.session.user.id) {
-        throw new ctx.ActionError("Animal non trouvé ou accès non autorisé");
+      if (!existingAnimal) {
+        throw new ctx.ActionError("Animal non trouvé");
+      }
+
+      const isPetSitterResult = await isPetSitter(ctx.session.user.id);
+
+      if (
+        !isPetSitterResult.data?.isPetSitter &&
+        existingAnimal?.userId !== ctx.session.user.id
+      ) {
+        throw new ctx.ActionError(
+          "Vous n'avez pas les droits pour supprimer cet animal",
+        );
       }
 
       const animalToDelete = await prisma.animal.findUnique({
-        where: { id },
+        where: {
+          ...(!isPetSitterResult.data?.isPetSitter && {
+            userId: ctx.session.user.id,
+          }),
+          id,
+        },
       });
 
       if (animalToDelete && animalToDelete.imageUrl) {
@@ -213,7 +321,7 @@ export const deleteAnimal = authAction
         where: { id },
       });
 
-      revalidatePath("/animal");
+      revalidatePath("/");
       return {
         message: "Votre animal a bien été supprimé",
         status: 200,

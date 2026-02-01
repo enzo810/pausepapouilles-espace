@@ -1,11 +1,6 @@
 import { assessmentValues, genderValues, speciesValues } from "@/lib/constants";
+import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from "@/lib/utils";
 import { z } from "zod";
-
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
-
-const fileSchema = z.file().refine((file) => file.size <= MAX_FILE_SIZE, {
-  message: "L'image ne doit pas dépasser 5 Mo",
-});
 
 export const CreateAnimalFormSchema = z.object({
   name: z.string().min(1, "Le nom est requis"),
@@ -37,17 +32,20 @@ export const CreateAnimalFormSchema = z.object({
       "Vous devez sélectionner une seule image",
     )
     .refine(
-      (file) => file.length === 0 || file?.[0]?.type.includes("image"),
-      "Vous devez sélectionner une image",
+      (file) =>
+        file.length === 0 || ALLOWED_IMAGE_TYPES.includes(file?.[0]?.type),
+      "Vous devez sélectionner une image (JPEG, PNG, WebP ou JPG)",
     )
     .refine(
-      (file) => file.length === 0 || file?.[0]?.size < 5000000,
-      "L'image ne peut pas dépasser 5 Mo",
+      (file) => file.length === 0 || file?.[0]?.size <= MAX_IMAGE_SIZE,
+      `L'image ne peut pas dépasser ${MAX_IMAGE_SIZE / 1024 / 1024} Mo`,
     )
     .optional()
     .nullable(),
 });
 
-export const UpdateAnimalFormSchema = CreateAnimalFormSchema.extend({
+export const UpdateAnimalFormSchema = CreateAnimalFormSchema.omit({
+  userId: true,
+}).extend({
   id: z.string(),
 });

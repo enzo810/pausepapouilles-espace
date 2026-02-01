@@ -2,6 +2,7 @@ import Providers from "@/components/providers";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import NextTopLoader from "nextjs-toploader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Pause Papouilles Espace",
+  title: "Espace - Pause Papouilles",
   description: "Espace Pause Papouilles",
 };
 
@@ -28,6 +29,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <NextTopLoader height={4} color="var(--primary)" showSpinner={false} />
         <Providers>{children}</Providers>
       </body>
     </html>

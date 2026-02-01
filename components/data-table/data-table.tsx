@@ -12,7 +12,9 @@ import {
 
 import { UserRole } from "@/generated/prisma/enums";
 import { flexRender } from "@tanstack/react-table";
+import { Eye } from "lucide-react";
 import React from "react";
+import { Button } from "../ui/button";
 import {
   Table,
   TableBody,
@@ -22,7 +24,6 @@ import {
   TableRow,
 } from "../ui/table";
 import { DataTablePagination } from "./data-table-pagination";
-import { Button } from "../ui/button";
 import { DataTableViewOptions } from "./data-table-view-options";
 
 interface DataTableProps<TData, TValue> {
@@ -30,13 +31,16 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
 
-  renderCard: (args: { item: TData; select: () => void }) => React.ReactNode;
+  renderCard?: (args: { item: TData; select: () => void }) => React.ReactNode;
 
   renderDialog?: (args: {
     selected: TData;
     open: boolean;
     setOpen: (open: boolean) => void;
   }) => React.ReactNode;
+
+  onRowClick?: (item: TData) => void;
+  createButton?: React.ReactNode;
 }
 
 export function DataTable<TData, TValue>({
@@ -45,6 +49,8 @@ export function DataTable<TData, TValue>({
   data,
   renderCard,
   renderDialog,
+  onRowClick,
+  createButton,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] =
@@ -73,21 +79,27 @@ export function DataTable<TData, TValue>({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex items-center justify-end gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() =>
-            setDisplayType(displayType === "table" ? "card" : "table")
-          }
-        >
-          {displayType === "table" ? "Voir en carte" : "Voir en table"}
-        </Button>
-        <DataTableViewOptions table={table} />
+        {displayType === "table" &&
+          (role === "ADMIN" || role === "PET_SITTER") && (
+            <DataTableViewOptions table={table} />
+          )}
+        {(role === "ADMIN" || role === "PET_SITTER") && renderCard && (
+          <Button
+            variant="outline"
+            onClick={() =>
+              setDisplayType(displayType === "table" ? "card" : "table")
+            }
+          >
+            <Eye className="size-4" />
+            {displayType === "table" ? "Voir en carte" : "Voir en table"}
+          </Button>
+        )}
+        {createButton}
       </div>
-      {displayType === "card" ? (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {displayType === "card" && renderCard ? (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5">
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) =>
               renderCard({
@@ -129,7 +141,11 @@ export function DataTable<TData, TValue>({
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
                     onClick={() => {
-                      setSelectedItem(row.original);
+                      if (onRowClick) {
+                        onRowClick(row.original);
+                      } else {
+                        setSelectedItem(row.original);
+                      }
                     }}
                   >
                     {row.getVisibleCells().map((cell) => (
@@ -157,7 +173,9 @@ export function DataTable<TData, TValue>({
         </div>
       )}
 
-      <DataTablePagination table={table} />
+      {(role === "ADMIN" || role === "PET_SITTER") && (
+        <DataTablePagination table={table} />
+      )}
 
       {selectedItem &&
         renderDialog &&

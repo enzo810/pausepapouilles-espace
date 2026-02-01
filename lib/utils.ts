@@ -1,6 +1,11 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { assessmentValues, genderValues, speciesValues } from "./constants";
+import {
+  assessmentValues,
+  genderValues,
+  speciesValues,
+  userRoleValues,
+} from "./constants";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -49,3 +54,32 @@ export function displayGenderValues(
       return value;
   }
 }
+
+export function displayUserRoleValues(
+  value: (typeof userRoleValues)[number],
+): string {
+  switch (value) {
+    case "CLIENT":
+      return "Client";
+    case "PET_SITTER":
+      return "Pet Sitter";
+    case "ADMIN":
+      return "Administrateur";
+    default:
+      return value;
+  }
+}
+
+export function formatAge(age: number | null | undefined): string | null {
+  if (age === null || age === undefined) return null;
+  return `${age} an${age > 1 ? "s" : ""}`;
+}
+
+export const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 Mo
+
+export const ALLOWED_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/jpg",
+];

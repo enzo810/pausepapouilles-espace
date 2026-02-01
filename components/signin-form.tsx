@@ -7,7 +7,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Field, FieldDescription, FieldGroup } from "@/components/ui/field";
 import {
   Form,
   FormControl,
@@ -18,125 +17,95 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { signIn } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "nextjs-toploader/app";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { Button } from "./ui/button";
+import { LoadingButton } from "./ui/loading-button";
 
 export function SigninForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const router = useRouter();
   const SigninFormSchema = z.object({
-    firstname: z.string(),
-    lastname: z.string(),
     email: z.string(),
-    password: z.string(),
   });
 
   const form = useForm<z.infer<typeof SigninFormSchema>>({
     resolver: zodResolver(SigninFormSchema),
     defaultValues: {
-      firstname: "",
-      lastname: "",
       email: "",
-      password: "",
     },
   });
 
-  const router = useRouter();
+  const { mutateAsync: signInMutate, isPending: isSigningIn } = useMutation({
+    mutationFn: async (values: z.infer<typeof SigninFormSchema>) => {
+      await authClient.signIn.magicLink(
+        {
+          email: values.email,
+          callbackURL: "/",
+        },
+        {
+          onSuccess: () => {
+            router.push(`/verify-email?email=${values.email}`);
+            router.refresh();
+          },
+          onError: (error) => {
+            toast.error(error.error.message);
+          },
+        },
+      );
+    },
+  });
 
   async function onSubmit(values: z.infer<typeof SigninFormSchema>) {
-    await signIn.email(
-      {
-        email: values.email,
-        password: values.password,
-      },
-      {
-        onSuccess: () => {
-          router.push("/");
-          router.refresh();
-        },
-        onError: (error) => {
-          toast.error(error.error.message);
-        },
-      },
-    );
+    toast.promise(signInMutate(values), {
+      loading: "Connexion en cours...",
+    });
   }
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle>Connectez-vous à votre compte</CardTitle>
+          <CardTitle>Accédez à votre compte</CardTitle>
           <CardDescription>
-            Entrez votre email ci-dessous pour vous connecter à votre compte
+            Entrez votre email ci-dessous pour accéder à votre compte
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              <FieldGroup>
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input type="email" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Nous utiliserons cette adresse email pour vous
-                        contacter. Nous ne partagerons pas votre adresse email
-                        avec personne d&apos;autre.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="flex items-center gap-2">
-                        <FormLabel className="flex-1">Mot de passe</FormLabel>
-                        <FieldDescription>
-                          <Link
-                            href="/forget-password"
-                            className="text-indigo-500 text-sm ml-2"
-                          >
-                            Mot de passe oublié ?
-                          </Link>
-                        </FieldDescription>
-                      </div>
-                      <FormControl>
-                        <Input type="password" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Votre mot de passe doit contenir au moins 8 caractères.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </FieldGroup>
-              <Field>
-                <Button type="submit">Se connecter</Button>
-                <FieldDescription className="text-center">
-                  Vous n&apos;avez pas de compte ?{" "}
-                  <Link href="/signup" className="text-indigo-500 text-sm ml-2">
-                    S&apos;inscrire
-                  </Link>
-                </FieldDescription>
-              </Field>
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input type="email" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      Nous utiliserons cette adresse email pour vous contacter.
+                      Nous ne partagerons pas votre adresse email avec personne
+                      d&apos;autre.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <LoadingButton
+                type="submit"
+                className="w-full"
+                loading={isSigningIn}
+              >
+                Se connecter
+              </LoadingButton>
             </form>
           </Form>
         </CardContent>

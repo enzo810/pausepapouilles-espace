@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import {
   Combobox,
   ComboboxContent,
@@ -32,7 +31,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { authClient, useSession } from "@/lib/auth-client";
+import { useSession } from "@/lib/auth-client";
 import { assessmentValues, genderValues, speciesValues } from "@/lib/constants";
 import {
   displayAssessmentValues,
@@ -41,23 +40,26 @@ import {
 } from "@/lib/utils";
 import { CreateAnimalFormSchema } from "@/schemas/AnimalFormSchema";
 import { createAnimal, updateAnimal } from "@/server/actions/animal.action";
+import { getUsers } from "@/server/actions/user.action";
 import { AnimalType } from "@/types/AnimalTypes";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { LoadingButton } from "./ui/loading-button";
 
 interface AnimalFormProps {
   setOpen?: (open: boolean) => void;
   animal?: AnimalType;
+  userId?: string;
+  type: "create" | "update";
 }
 
-export function AnimalForm({ setOpen, animal }: AnimalFormProps = {}) {
+export function AnimalForm({ setOpen, animal, userId, type }: AnimalFormProps) {
   const { data: session } = useSession();
   const router = useRouter();
-  const isEditMode = !!animal;
   const dialogContainer = useDialogContainer();
 
   const {
@@ -67,12 +69,11 @@ export function AnimalForm({ setOpen, animal }: AnimalFormProps = {}) {
   } = useQuery({
     queryKey: ["users"],
     queryFn: async () => {
-      const users = await authClient.admin.listUsers({
-        query: {},
-      });
-      return users;
+      const users = await getUsers();
+      return users.data?.users ?? [];
     },
-
+    enabled:
+      session?.user.role === "ADMIN" || session?.user.role === "PET_SITTER",
     refetchInterval: 0,
     staleTime: Infinity,
   });
@@ -100,7 +101,7 @@ export function AnimalForm({ setOpen, animal }: AnimalFormProps = {}) {
       healthIssues: animal?.healthIssues || false,
       careInstructions: animal?.careInstructions || "",
       additionalNotes: animal?.additionalNotes || "",
-      userId: animal?.userId || undefined,
+      userId: type === "create" && userId ? userId : undefined,
       formData: undefined,
       imageUrl: undefined,
     },
@@ -154,19 +155,29 @@ export function AnimalForm({ setOpen, animal }: AnimalFormProps = {}) {
       formDataWithFile.append("file", blob);
     }
 
-    if (isEditMode && animal) {
-      await mutateUpdateAnimal({
-        ...values,
-        id: animal.id,
-        formData: formDataWithFile,
-        imageUrl: undefined,
-      });
+    if (type === "update" && animal) {
+      toast.promise(
+        mutateUpdateAnimal({
+          ...values,
+          id: animal.id,
+          formData: formDataWithFile,
+          imageUrl: undefined,
+        }),
+        {
+          loading: "Mise à jour en cours...",
+        },
+      );
     } else {
-      await mutateCreateAnimal({
-        ...values,
-        formData: formDataWithFile,
-        imageUrl: undefined,
-      });
+      toast.promise(
+        mutateCreateAnimal({
+          ...values,
+          formData: formDataWithFile,
+          imageUrl: undefined,
+        }),
+        {
+          loading: "Création en cours...",
+        },
+      );
     }
   }
 
@@ -380,89 +391,106 @@ export function AnimalForm({ setOpen, animal }: AnimalFormProps = {}) {
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="childFriendly"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Ami avec les enfants</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionner" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {assessmentValues.map((value) => (
-                      <SelectItem key={value} value={value}>
-                        {displayAssessmentValues(value)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div>
+            <FormLabel className="pb-2">Tolérence</FormLabel>
+            <div className="flex w-full gap-2 flex-wrap border rounded-md p-4">
+              <FormField
+                control={form.control}
+                name="childFriendly"
+                render={({ field }) => (
+                  <FormItem className="flex-1 min-w-0">
+                    <FormLabel className="text-muted-foreground text-sm font-normal">
+                      enfants
+                    </FormLabel>
 
-          <FormField
-            control={form.control}
-            name="dogFriendly"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Ami avec les chiens</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionner" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {assessmentValues.map((value) => (
-                      <SelectItem key={value} value={value}>
-                        {displayAssessmentValues(value)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value ?? ""}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Sélectionner" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {assessmentValues.map((value) => (
+                          <SelectItem key={value} value={value}>
+                            {displayAssessmentValues(value)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
 
-          <FormField
-            control={form.control}
-            name="trafficTolerance"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Tolérance à la circulation</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionner" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {assessmentValues.map((value) => (
-                      <SelectItem key={value} value={value}>
-                        {displayAssessmentValues(value)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="dogFriendly"
+                render={({ field }) => (
+                  <FormItem className="flex-1 min-w-0">
+                    <FormLabel className="text-muted-foreground text-sm font-normal">
+                      chiens
+                    </FormLabel>
+
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value ?? ""}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Sélectionner" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {assessmentValues.map((value) => (
+                          <SelectItem key={value} value={value}>
+                            {displayAssessmentValues(value)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="trafficTolerance"
+                render={({ field }) => (
+                  <FormItem className="flex-1 min-w-0">
+                    <FormLabel className="text-muted-foreground text-sm font-normal">
+                      circulation
+                    </FormLabel>
+
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value ?? ""}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Sélectionner" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {assessmentValues.map((value) => (
+                          <SelectItem key={value} value={value}>
+                            {displayAssessmentValues(value)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
 
           <FormField
             control={form.control}
@@ -562,64 +590,63 @@ export function AnimalForm({ setOpen, animal }: AnimalFormProps = {}) {
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="userId"
-            render={({ field }) => {
-              const users = usersData?.data?.users ?? [];
-              const selectedUser = users.find((u) => u.id === field.value);
-              return (
-                <FormItem>
-                  <FormLabel>Propriétaire</FormLabel>
-                  <FormControl>
-                    <Combobox
-                      items={users}
-                      modal={true}
-                      value={selectedUser ?? null}
-                      onValueChange={(user) => field.onChange(user?.id ?? null)}
-                      itemToStringLabel={(user) => user.name ?? ""}
-                      isItemEqualToValue={(item, value) =>
-                        item?.id === value?.id
-                      }
-                    >
-                      <ComboboxInput
-                        placeholder="Sélectionner le propriétaire"
-                        showClear
-                      />
-                      <ComboboxContent container={dialogContainer}>
-                        {usersError ? (
-                          <ComboboxStatus>
-                            Une erreur est survenue
-                          </ComboboxStatus>
-                        ) : usersData?.error ? (
-                          <ComboboxStatus>
-                            {usersData?.error?.message ||
-                              "Une erreur est survenue"}
-                          </ComboboxStatus>
-                        ) : usersLoading ? (
-                          <ComboboxStatus>Chargement...</ComboboxStatus>
-                        ) : (
-                          <>
-                            <ComboboxEmpty>
-                              Aucun propriétaire trouvé.
-                            </ComboboxEmpty>
-                            <ComboboxList>
-                              {(user) => (
-                                <ComboboxItem key={user.id} value={user}>
-                                  {user.name}
-                                </ComboboxItem>
-                              )}
-                            </ComboboxList>
-                          </>
-                        )}
-                      </ComboboxContent>
-                    </Combobox>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              );
-            }}
-          />
+          {type === "create" && (
+            <FormField
+              control={form.control}
+              name="userId"
+              render={({ field }) => {
+                const users = usersData ?? [];
+                const selectedUser = users.find((u) => u.id === field.value);
+                return (
+                  <FormItem>
+                    <FormLabel>Propriétaire</FormLabel>
+                    <FormControl>
+                      <Combobox
+                        items={users}
+                        modal={true}
+                        value={selectedUser ?? null}
+                        onValueChange={(user) =>
+                          field.onChange(user?.id ?? null)
+                        }
+                        itemToStringLabel={(user) => user.name ?? ""}
+                        isItemEqualToValue={(item, value) =>
+                          item?.id === value?.id
+                        }
+                      >
+                        <ComboboxInput
+                          placeholder="Sélectionner le propriétaire"
+                          showClear
+                        />
+                        <ComboboxContent container={dialogContainer}>
+                          {usersError ? (
+                            <ComboboxStatus>
+                              Une erreur est survenue
+                            </ComboboxStatus>
+                          ) : usersLoading ? (
+                            <ComboboxStatus>Chargement...</ComboboxStatus>
+                          ) : (
+                            <>
+                              <ComboboxEmpty>
+                                Aucun propriétaire trouvé.
+                              </ComboboxEmpty>
+                              <ComboboxList>
+                                {(user) => (
+                                  <ComboboxItem key={user.id} value={user}>
+                                    {user.name}
+                                  </ComboboxItem>
+                                )}
+                              </ComboboxList>
+                            </>
+                          )}
+                        </ComboboxContent>
+                      </Combobox>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
+            />
+          )}
 
           <FormField
             control={form.control}
@@ -635,17 +662,11 @@ export function AnimalForm({ setOpen, animal }: AnimalFormProps = {}) {
           />
 
           <Field>
-            <Button type="submit" disabled={isPending}>
-              {isPending
-                ? isEditMode
-                  ? "Mise à jour..."
-                  : "Création..."
-                : isEditMode
-                  ? "Mettre à jour"
-                  : "Créer l'animal"}
-            </Button>
+            <LoadingButton type="submit" loading={isUpdating || isCreating}>
+              {type === "update" ? "Mettre à jour" : "Créer l'animal"}
+            </LoadingButton>
             <FieldDescription className="text-center">
-              Tous les champs sont obligatoires
+              Certains champs sont obligatoires
             </FieldDescription>
           </Field>
         </FieldGroup>

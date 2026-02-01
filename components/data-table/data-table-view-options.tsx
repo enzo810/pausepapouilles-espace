@@ -21,7 +21,7 @@ export function DataTableViewOptions<TData>({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className="hidden h-8 flex">
+        <Button variant="outline">
           <Settings2 />
           Colonnes
         </Button>
@@ -43,7 +43,8 @@ export function DataTableViewOptions<TData>({
                 checked={column.getIsVisible()}
                 onCheckedChange={(value) => column.toggleVisibility(!!value)}
               >
-                {column.id}
+                {(column.columnDef.meta as { label?: string } | undefined)
+                  ?.label ?? column.id}
               </DropdownMenuCheckboxItem>
             );
           })}

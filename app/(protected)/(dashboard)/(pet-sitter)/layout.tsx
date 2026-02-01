@@ -7,5 +7,5 @@ export default async function PetSitterLayout({
 }) {
   await roleMiddleware();
 
-  return { children };
+  return <>{children}</>;
 }

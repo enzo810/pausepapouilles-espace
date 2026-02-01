@@ -1,18 +1,16 @@
 import { Header } from "@/components/header";
 import PageLayout from "@/components/page-layout";
 import { getSession } from "@/lib/auth-server";
-import { redirect } from "next/navigation";
+import { onboardingMiddleware } from "@/middlewares/onboarding-middleware";
 
-export default async function ProtectedLayout({
+export default async function ProfileLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const session = await getSession();
 
-  if (session && !session.user.emailVerified) {
-    redirect(`/verify-email?email=${session.user.email}`);
-  }
+  // await onboardingMiddleware();
 
   return (
     <div>

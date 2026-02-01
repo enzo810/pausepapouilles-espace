@@ -26,3 +26,24 @@ export const isPetSitter = authAction
       status: 200,
     };
   });
+
+export const isAdmin = authAction
+  .inputSchema(IdSchema)
+  .action(async ({ parsedInput: id }) => {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: id,
+      },
+      select: {
+        role: true,
+      },
+    });
+
+    const isAdminRole = user?.role === "ADMIN";
+
+    return {
+      isAdmin: isAdminRole,
+      message: isAdminRole ? "Vous êtes admin" : "Vous n'êtes pas admin",
+      status: 200,
+    };
+  });
