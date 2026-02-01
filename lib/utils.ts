@@ -74,3 +74,12 @@ export function formatAge(age: number | null | undefined): string | null {
   if (age === null || age === undefined) return null;
   return `${age} an${age > 1 ? "s" : ""}`;
 }
+
+export const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 Mo
+
+export const ALLOWED_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/jpg",
+];

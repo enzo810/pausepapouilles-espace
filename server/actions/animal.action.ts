@@ -2,14 +2,85 @@
 
 import prisma from "@/lib/prisma";
 import { authAction } from "@/lib/safe-action";
+import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from "@/lib/utils";
 import {
   CreateAnimalFormSchema,
   UpdateAnimalFormSchema,
 } from "@/schemas/AnimalFormSchema";
 import { del, put } from "@vercel/blob";
 import { revalidatePath } from "next/cache";
+import sharp from "sharp";
 import { z } from "zod";
 import { isPetSitter } from "./role.action";
+
+function validateImageFile(file: File): { success: boolean; message: string } {
+  if (file.size === 0) {
+    return {
+      success: false,
+      message: "Le fichier est vide",
+    };
+  }
+
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+    return {
+      success: false,
+      message: "Le fichier doit être une image (JPEG, PNG, WebP ou JPG)",
+    };
+  }
+
+  if (file.size >= MAX_IMAGE_SIZE) {
+    return {
+      success: false,
+      message: `L'image ne doit pas dépasser ${MAX_IMAGE_SIZE / 1024 / 1024} Mo`,
+    };
+  } else {
+    return {
+      success: true,
+      message: "L'image est valide",
+    };
+  }
+}
+
+async function encodeImageToWebP(
+  file: File,
+): Promise<
+  { success: true; buffer: Buffer } | { success: false; message: string }
+> {
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    const webpBuffer = await sharp(buffer)
+      .rotate()
+      .resize({
+        width: 2048,
+        height: 2048,
+        fit: "inside",
+        withoutEnlargement: true,
+      })
+      .webp({ quality: 80 })
+      .toBuffer();
+
+    if (webpBuffer.length === 0) {
+      return { success: false, message: "Image invalide" };
+    }
+
+    if (webpBuffer.length > 2 * 1024 * 1024) {
+      return {
+        success: false,
+        message: "L'image encodée ne doit pas dépasser 2 Mo",
+      };
+    }
+
+    return { success: true, buffer: webpBuffer };
+  } catch (error) {
+    console.error("encodeImageToWebP error:", error);
+    return {
+      success: false,
+      message: "Impossible de traiter cette image",
+    };
+  }
+}
 
 export const createAnimal = authAction
   .inputSchema(CreateAnimalFormSchema)
@@ -31,12 +102,27 @@ export const createAnimal = authAction
       });
 
       if (animal) {
-        const file = formData?.get("file") as File;
+        const file = formData?.get("file");
 
-        if (file) {
-          const blob = await put(`animals/${animal.id}`, file, {
-            access: "public",
-          });
+        if (file && file instanceof File) {
+          const validation = validateImageFile(file);
+          if (!validation.success) {
+            throw new ctx.ActionError(validation.message);
+          }
+
+          const encodingResult = await encodeImageToWebP(file);
+          if (!encodingResult.success) {
+            throw new ctx.ActionError(encodingResult.message);
+          }
+
+          const blob = await put(
+            `animals/${animal.id}.webp`,
+            encodingResult.buffer,
+            {
+              access: "public",
+              contentType: "image/webp",
+            },
+          );
 
           const updatedAnimal = await prisma.animal.update({
             where: {
@@ -108,12 +194,27 @@ export const updateAnimal = authAction
       });
 
       if (animal) {
-        const file = formData?.get("file") as File;
+        const file = formData?.get("file");
 
-        if (file) {
-          const blob = await put(`animals/${animal.id}`, file, {
-            access: "public",
-          });
+        if (file && file instanceof File) {
+          const validation = validateImageFile(file);
+          if (!validation.success) {
+            throw new ctx.ActionError(validation.message);
+          }
+
+          const encodingResult = await encodeImageToWebP(file);
+          if (!encodingResult.success) {
+            throw new ctx.ActionError(encodingResult.message);
+          }
+
+          const blob = await put(
+            `animals/${animal.id}.webp`,
+            encodingResult.buffer,
+            {
+              access: "public",
+              contentType: "image/webp",
+            },
+          );
 
           const updatedAnimal = await prisma.animal.update({
             where: {
