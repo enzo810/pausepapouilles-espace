@@ -52,6 +52,7 @@ export function SigninForm({
         },
         {
           onSuccess: () => {
+            toast.success("Verifiez votre boite mail");
             router.push(`/verify-email?email=${values.email}`);
             router.refresh();
           },
