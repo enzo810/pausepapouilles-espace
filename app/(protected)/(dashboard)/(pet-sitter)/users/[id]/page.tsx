@@ -23,7 +23,7 @@ import {
   XCircle,
 } from "lucide-react";
 import Link from "next/link";
-import { AnimalDataTable } from "../../../animal/components/animal-data-table";
+import { AnimalDataTable } from "@/components/animal-data-table";
 import { UserActions } from "./user-actions";
 
 type UserDetailPageProps = {

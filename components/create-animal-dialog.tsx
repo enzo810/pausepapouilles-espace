@@ -24,7 +24,7 @@ export function CreateAnimalDialog({ userId }: { userId?: string }) {
           Ajouter un animal
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh]">
         <DialogHeader>
           <DialogTitle>Ajouter un animal</DialogTitle>
           <DialogDescription>

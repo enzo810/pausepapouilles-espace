@@ -27,7 +27,7 @@ export const Header = ({ user }: { user: User }) => {
       </div>
       <nav className="flex items-center gap-2">
         <Link
-          href="/animal"
+          href="/"
           className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium h-9 px-4 py-2 border bg-background shadow-xs cursor-pointer outline-none"
         >
           <PawPrint className="size-4" />

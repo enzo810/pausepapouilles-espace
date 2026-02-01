@@ -1,6 +1,6 @@
 "use client";
 
-import { AssessmentBadge } from "@/app/(protected)/(dashboard)/animal/components/assessment-badge";
+import { AssessmentBadge } from "@/components/assessment-badge";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,

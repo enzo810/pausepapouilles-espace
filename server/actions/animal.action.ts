@@ -220,7 +220,7 @@ export const deleteAnimal = authAction
         where: { id },
       });
 
-      revalidatePath("/animal");
+      revalidatePath("/");
       return {
         message: "Votre animal a bien été supprimé",
         status: 200,

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
 import { deleteAnimal } from "@/server/actions/animal.action";
 import { AnimalType } from "@/types/AnimalTypes";
+import { DialogTitle } from "@radix-ui/react-dialog";
 import { useMutation } from "@tanstack/react-query";
 import { ArrowLeft, Pencil } from "lucide-react";
 import { useState } from "react";
@@ -11,7 +12,6 @@ import { toast } from "sonner";
 import { Animal } from "./animal";
 import { AnimalForm } from "./animal-form";
 import { DeleteItemDialog } from "./delete-item-dialog";
-import { DialogTitle } from "@radix-ui/react-dialog";
 
 interface AnimalDialogProps {
   animal: AnimalType;
@@ -54,7 +54,7 @@ export function AnimalDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-2xl h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="hidden">{animal.name}</DialogTitle>
           {isEditing ? (
@@ -67,7 +67,6 @@ export function AnimalDialog({
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Retour
               </Button>
-              <AnimalForm setOpen={setOpen} animal={animal} type="update" />
             </>
           ) : (
             <div className="flex gap-2">
