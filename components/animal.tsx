@@ -1,232 +1,372 @@
 "use client";
 
+import { AssessmentBadge } from "@/app/(protected)/(dashboard)/animal/components/assessment-badge";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import {
-  displayAssessmentValues,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
   displayGenderValues,
   displaySpeciesValues,
+  formatAge,
 } from "@/lib/utils";
 import { AnimalType } from "@/types/AnimalTypes";
 import {
   AlertTriangle,
   Baby,
+  Cake,
+  Calendar,
   Car,
+  Cat,
+  Clock,
   Cookie,
   Dog,
   FileText,
   Heart,
+  PawPrint,
+  ShieldQuestionMark,
   Stethoscope,
+  User,
   Utensils,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { InfoRow } from "./ui/info-row";
+import { NotDefined } from "./ui/not-defined";
 
 interface AnimalProps {
   animal: AnimalType;
 }
 
-function AssessmentBadge({ value }: { value: "GOOD" | "MIXED" | "DIFFICULT" }) {
-  const variants: Record<
-    typeof value,
-    "default" | "secondary" | "destructive"
-  > = {
-    GOOD: "default",
-    MIXED: "secondary",
-    DIFFICULT: "destructive",
-  };
-  return (
-    <Badge variant={variants[value]}>{displayAssessmentValues(value)}</Badge>
-  );
-}
+const speciesIcons = {
+  DOG: Dog,
+  CAT: Cat,
+  OTHER: PawPrint,
+};
 
-function InfoRow({
-  label,
-  value,
-  icon: Icon,
-}: {
-  label: string;
-  value: React.ReactNode;
-  icon?: React.ComponentType<{ className?: string }>;
-}) {
-  return (
-    <div className="flex items-start gap-3 py-2">
-      {Icon && <Icon className="h-5 w-5 text-muted-foreground mt-0.5" />}
-      <div className="flex-1">
-        <p className="text-sm text-muted-foreground">{label}</p>
-        <p className="font-medium">{value || "-"}</p>
-      </div>
-    </div>
-  );
-}
-
-function Section({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="space-y-2">
-      <h3 className="font-semibold text-lg">{title}</h3>
-      <div className="space-y-1">{children}</div>
-    </div>
-  );
+function formatDate(date: Date | string | null | undefined): string | null {
+  if (!date) return null;
+  return new Date(date).toLocaleDateString("fr-FR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 }
 
 export function Animal({ animal }: AnimalProps) {
+  const SpeciesIcon = speciesIcons[animal.species] || PawPrint;
+
   return (
     <div className="space-y-6">
-      {/* Informations générales */}
-      <Section title="Informations générales">
-        <div className="grid grid-cols-2 gap-4">
-          <InfoRow
-            label="Âge"
-            value={`${animal.age} an${animal.age ? (animal.age > 1 ? "s" : "") : ""}`}
-          />
-          <InfoRow label="Sexe" value={displayGenderValues(animal.gender)} />
-          <InfoRow
-            label="Espèce"
-            value={displaySpeciesValues(
-              animal.species,
-              animal.otherSpecies ?? undefined,
-            )}
-          />
-          <InfoRow label="Race / Type" value={animal.type} />
-          <InfoRow
-            label="Identifié"
-            value={
-              <Badge variant={animal.isIdentified ? "default" : "secondary"}>
-                {animal.isIdentified ? "Oui" : "Non"}
-              </Badge>
-            }
-          />
-        </div>
-      </Section>
+      {/* En-tête avec photo et infos principales */}
+      <div className="flex gap-6">
+        {animal.imageUrl ? (
+          <Link
+            href={animal.imageUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block group shrink-0"
+          >
+            <div className="relative h-32 w-32 rounded-xl overflow-hidden">
+              <Image
+                src={animal.imageUrl}
+                alt={`Photo de ${animal.name}`}
+                fill
+                className="object-cover"
+                sizes="128px"
+                priority
+              />
+            </div>
+          </Link>
+        ) : (
+          <div className="flex h-32 w-32 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border-2">
+            <SpeciesIcon className="h-12 w-12 text-primary/40" />
+          </div>
+        )}
 
-      <Separator />
-
-      {/* Alimentation */}
-      <Section title="Alimentation">
-        <InfoRow
-          icon={Utensils}
-          label="Régime alimentaire"
-          value={animal.diet}
-        />
-        <InfoRow
-          icon={Cookie}
-          label="Friandises autorisées"
-          value={
-            <Badge variant={animal.treatsAllowed ? "default" : "secondary"}>
-              {animal.treatsAllowed ? "Oui" : "Non"}
+        <div className="flex-1 min-w-0 space-y-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant="outline">
+              {displaySpeciesValues(
+                animal.species,
+                animal.otherSpecies ?? undefined,
+              )}
             </Badge>
-          }
-        />
-      </Section>
-
-      <Separator />
-
-      {/* Comportement et socialisation */}
-      <Section title="Comportement et socialisation">
-        <div className="grid grid-cols-3 gap-4 py-2">
-          <div className="flex flex-col items-center gap-2">
-            <Baby className="h-6 w-6 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">Enfants</p>
-            <AssessmentBadge value={animal.childFriendly || "GOOD"} />
-          </div>
-          <div className="flex flex-col items-center gap-2">
-            <Dog className="h-6 w-6 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">Chiens</p>
-            <AssessmentBadge value={animal.dogFriendly || "GOOD"} />
-          </div>
-          <div className="flex flex-col items-center gap-2">
-            <Car className="h-6 w-6 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">Circulation</p>
-            <AssessmentBadge value={animal.trafficTolerance || "GOOD"} />
-          </div>
-        </div>
-        {animal.temperamentNotes && (
-          <InfoRow
-            icon={Heart}
-            label="Notes sur le tempérament"
-            value={animal.temperamentNotes}
-          />
-        )}
-        {animal.socializationNotes && (
-          <InfoRow
-            icon={FileText}
-            label="Notes de socialisation"
-            value={animal.socializationNotes}
-          />
-        )}
-      </Section>
-
-      <Separator />
-
-      {/* Santé et soins */}
-      <Section title="Santé et soins">
-        {animal.fears && (
-          <InfoRow icon={AlertTriangle} label="Peurs" value={animal.fears} />
-        )}
-        {animal.sensitiveAreas && (
-          <InfoRow
-            icon={AlertTriangle}
-            label="Zones sensibles"
-            value={animal.sensitiveAreas}
-          />
-        )}
-        <InfoRow
-          icon={Stethoscope}
-          label="Problèmes de santé"
-          value={
-            <Badge variant={animal.healthIssues ? "destructive" : "default"}>
-              {animal.healthIssues ? "Oui" : "Non"}
-            </Badge>
-          }
-        />
-        {animal.careInstructions && (
-          <InfoRow
-            icon={FileText}
-            label="Instructions de soins"
-            value={animal.careInstructions}
-          />
-        )}
-      </Section>
-
-      {animal.additionalNotes && (
-        <>
-          <Separator />
-          <Section title="Notes supplémentaires">
-            <p className="text-sm">{animal.additionalNotes}</p>
-          </Section>
-        </>
-      )}
-
-      {animal.imageUrl && (
-        <>
-          <Separator />
-          <Section title="Photo">
-            <Link
-              href={animal.imageUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block group"
+            <Badge
+              variant="outline"
+              className={
+                animal.gender === "MALE"
+                  ? "bg-blue-50 text-blue-700 border-blue-200"
+                  : "bg-pink-50 text-pink-700 border-pink-200"
+              }
             >
-              <div className="relative w-full h-64 md:h-96 rounded-lg overflow-hidden border shadow-sm transition-transform group-hover:scale-[1.02]">
-                <Image
-                  src={animal.imageUrl}
-                  alt={`Photo de ${animal.name}`}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 800px"
-                  priority
+              {displayGenderValues(animal.gender)}
+            </Badge>
+          </div>
+
+          <div className="flex flex-col gap-1 text-sm">
+            <div className="flex items-center gap-2">
+              <PawPrint className="h-4 w-4" />
+              <span>{animal.name}</span>
+            </div>
+            {animal.birthDate && (
+              <div className="flex items-center gap-2">
+                <Cake className="h-4 w-4" />
+                <span>
+                  {animal.birthDate ? (
+                    <>Né le {formatDate(animal.birthDate)}</>
+                  ) : (
+                    <NotDefined />
+                  )}
+                </span>
+              </div>
+            )}
+            {animal.user && (
+              <div className="flex items-center gap-2">
+                <User className="h-4 w-4" />
+                <span>
+                  {animal.user.name} ({animal.user.email})
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <Separator />
+
+      {/* Onglets avec les différentes sections */}
+      <Tabs defaultValue="general" className="w-full">
+        <TabsList className="w-full justify-start">
+          <TabsTrigger value="general">Général</TabsTrigger>
+          <TabsTrigger value="behavior">Comportement</TabsTrigger>
+          <TabsTrigger value="health">Santé</TabsTrigger>
+          <TabsTrigger value="notes">Notes</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="general" className="mt-4 space-y-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">
+                Informations générales
+              </CardTitle>
+              <CardDescription>Détails de base de l'animal</CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <InfoRow
+                  icon={PawPrint}
+                  label="Race / Type"
+                  value={animal.type}
+                />
+                <InfoRow
+                  icon={Calendar}
+                  label="Âge"
+                  value={formatAge(animal.age)}
+                />
+                <InfoRow
+                  icon={ShieldQuestionMark}
+                  label="Identifié"
+                  value={
+                    animal.isIdentified !== null &&
+                    animal.isIdentified !== undefined ? (
+                      <Badge
+                        variant={animal.treatsAllowed ? "default" : "secondary"}
+                      >
+                        {animal.isIdentified ? "Identifié" : "Non identifié"}
+                      </Badge>
+                    ) : (
+                      <NotDefined />
+                    )
+                  }
+                />
+                <InfoRow
+                  icon={Cookie}
+                  label="Friandises autorisées"
+                  value={
+                    animal.treatsAllowed !== null &&
+                    animal.treatsAllowed !== undefined ? (
+                      <Badge
+                        variant={animal.treatsAllowed ? "default" : "secondary"}
+                      >
+                        {animal.treatsAllowed ? "Oui" : "Non"}
+                      </Badge>
+                    ) : null
+                  }
                 />
               </div>
-            </Link>
-          </Section>
-        </>
-      )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Alimentation</CardTitle>
+              <CardDescription>
+                Régime et préférences alimentaires
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-3">
+              <InfoRow
+                icon={Utensils}
+                label="Régime alimentaire"
+                value={animal.diet}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="behavior" className="mt-4 space-y-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Compatibilité</CardTitle>
+              <CardDescription>
+                Évaluation du comportement avec différents environnements
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <InfoRow
+                  icon={Baby}
+                  label="Enfants"
+                  value={<AssessmentBadge value={animal.childFriendly} />}
+                />
+                <InfoRow
+                  icon={Dog}
+                  label="Chiens"
+                  value={<AssessmentBadge value={animal.dogFriendly} />}
+                />
+                <InfoRow
+                  icon={Car}
+                  label="Circulation"
+                  value={<AssessmentBadge value={animal.trafficTolerance} />}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Tempérament</CardTitle>
+              <CardDescription>
+                Notes sur le caractère et la socialisation
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-3">
+              <InfoRow
+                icon={Heart}
+                label="Notes sur le tempérament"
+                value={animal.temperamentNotes}
+              />
+              <InfoRow
+                icon={FileText}
+                label="Notes de socialisation"
+                value={animal.socializationNotes}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="health" className="mt-4 space-y-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">État de santé</CardTitle>
+              <CardDescription>
+                Informations médicales et zones sensibles
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-3">
+              <InfoRow
+                icon={Stethoscope}
+                label="Problèmes de santé"
+                value={
+                  animal.healthIssues !== null &&
+                  animal.healthIssues !== undefined ? (
+                    <Badge
+                      variant={animal.healthIssues ? "destructive" : "default"}
+                    >
+                      {animal.healthIssues ? "Oui" : "Non"}
+                    </Badge>
+                  ) : null
+                }
+              />
+              <InfoRow
+                icon={AlertTriangle}
+                label="Peurs"
+                value={animal.fears}
+              />
+              <InfoRow
+                icon={AlertTriangle}
+                label="Zones sensibles"
+                value={animal.sensitiveAreas}
+              />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Soins</CardTitle>
+              <CardDescription>
+                Instructions de soins spécifiques
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <InfoRow
+                icon={FileText}
+                label="Instructions de soins"
+                value={animal.careInstructions}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="notes" className="mt-4 space-y-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Notes supplémentaires</CardTitle>
+              <CardDescription>
+                Informations complémentaires sur l'animal
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {animal.additionalNotes ? (
+                <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                  {animal.additionalNotes}
+                </p>
+              ) : (
+                <NotDefined />
+              )}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Historique</CardTitle>
+              <CardDescription>
+                Dates de création et modification
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <InfoRow
+                  icon={Clock}
+                  label="Créé le"
+                  value={formatDate(animal.createdAt)}
+                />
+                <InfoRow
+                  icon={Clock}
+                  label="Modifié le"
+                  value={formatDate(animal.updatedAt)}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

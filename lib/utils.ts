@@ -69,3 +69,8 @@ export function displayUserRoleValues(
       return value;
   }
 }
+
+export function formatAge(age: number | null | undefined): string | null {
+  if (age === null || age === undefined) return null;
+  return `${age} an${age > 1 ? "s" : ""}`;
+}

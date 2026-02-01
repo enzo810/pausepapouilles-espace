@@ -38,12 +38,16 @@ export default async function AnimalPage() {
             <div className="space-y-1">
               <div className="flex items-center gap-3">
                 <h2 className="text-2xl font-bold tracking-tight">
-                  Vos Animaux
+                  {session.user.role === "ADMIN"
+                    ? "Tous les Animaux"
+                    : "Vos Animaux"}
                 </h2>
                 <Badge variant="secondary">{animals.length}</Badge>
               </div>
               <p className="text-sm text-muted-foreground">
-                Gérez les animaux de votre profil
+                {session.user.role === "ADMIN"
+                  ? "Gérez tous les animaux enregistrés"
+                  : "Gérez les animaux de votre profil"}
               </p>
             </div>
           </div>

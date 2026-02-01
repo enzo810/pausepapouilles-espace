@@ -1,13 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
 import { deleteAnimal } from "@/server/actions/animal.action";
 import { AnimalType } from "@/types/AnimalTypes";
 import { useMutation } from "@tanstack/react-query";
@@ -17,6 +11,7 @@ import { toast } from "sonner";
 import { Animal } from "./animal";
 import { AnimalForm } from "./animal-form";
 import { DeleteItemDialog } from "./delete-item-dialog";
+import { DialogTitle } from "@radix-ui/react-dialog";
 
 interface AnimalDialogProps {
   animal: AnimalType;
@@ -61,29 +56,20 @@ export function AnimalDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{animal.name}</DialogTitle>
-          <DialogDescription>
-            {isEditing
-              ? "Modifier les informations de votre animal"
-              : "Informations de votre animal"}
-          </DialogDescription>
-        </DialogHeader>
-
-        {isEditing ? (
-          <>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsEditing(false)}
-              className="w-fit"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Retour
-            </Button>
-            <AnimalForm setOpen={setOpen} animal={animal} type="update" />
-          </>
-        ) : (
-          <>
+          <DialogTitle className="hidden">{animal.name}</DialogTitle>
+          {isEditing ? (
+            <>
+              <Button
+                variant="outline"
+                onClick={() => setIsEditing(false)}
+                className="w-fit"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Retour
+              </Button>
+              <AnimalForm setOpen={setOpen} animal={animal} type="update" />
+            </>
+          ) : (
             <div className="flex gap-2">
               <Button
                 variant="outline"
@@ -99,8 +85,13 @@ export function AnimalDialog({
                 disabled={status === "pending"}
               />
             </div>
-            <Animal animal={animal} />
-          </>
+          )}
+        </DialogHeader>
+
+        {isEditing ? (
+          <AnimalForm setOpen={setOpen} animal={animal} type="update" />
+        ) : (
+          <Animal animal={animal} />
         )}
       </DialogContent>
     </Dialog>
