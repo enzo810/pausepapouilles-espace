@@ -20,7 +20,7 @@ export function CreateAnimalDialog({ userId }: { userId?: string }) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
-          <Plus className="mr-2 size-4" />
+          <Plus className="size-4" />
           Ajouter un animal
         </Button>
       </DialogTrigger>

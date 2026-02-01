@@ -24,6 +24,7 @@ import {
 } from "../ui/table";
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableViewOptions } from "./data-table-view-options";
+import { Eye } from "lucide-react";
 
 interface DataTableProps<TData, TValue> {
   role: UserRole;
@@ -39,6 +40,7 @@ interface DataTableProps<TData, TValue> {
   }) => React.ReactNode;
 
   onRowClick?: (item: TData) => void;
+  createButton?: React.ReactNode;
 }
 
 export function DataTable<TData, TValue>({
@@ -48,12 +50,13 @@ export function DataTable<TData, TValue>({
   renderCard,
   renderDialog,
   onRowClick,
+  createButton,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [displayType, setDisplayType] = React.useState<"table" | "card">(
-    role === "ADMIN" || (role === "PET_SITTER" && renderCard)
+    (role === "ADMIN" || role === "PET_SITTER") && renderCard
       ? "table"
       : "card",
   );
@@ -78,23 +81,24 @@ export function DataTable<TData, TValue>({
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-end gap-2">
-        {(role === "ADMIN" || role === "PET_SITTER") && renderCard && (
+    <div className="space-y-6">
+      {(role === "ADMIN" || role === "PET_SITTER") && renderCard && (
+        <div className="flex items-center justify-end gap-2">
+          {displayType === "table" && <DataTableViewOptions table={table} />}
           <Button
             variant="outline"
-            size="sm"
             onClick={() =>
               setDisplayType(displayType === "table" ? "card" : "table")
             }
           >
+            <Eye className="size-4" />
             {displayType === "table" ? "Voir en carte" : "Voir en table"}
           </Button>
-        )}
-        <DataTableViewOptions table={table} />
-      </div>
+          {createButton}
+        </div>
+      )}
       {displayType === "card" && renderCard ? (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5">
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) =>
               renderCard({
@@ -168,7 +172,9 @@ export function DataTable<TData, TValue>({
         </div>
       )}
 
-      <DataTablePagination table={table} />
+      {(role === "ADMIN" || role === "PET_SITTER") && (
+        <DataTablePagination table={table} />
+      )}
 
       {selectedItem &&
         renderDialog &&

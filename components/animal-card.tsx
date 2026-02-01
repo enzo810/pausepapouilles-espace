@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { AnimalType } from "@/types/AnimalTypes";
 import { Cat, Dog, PawPrint } from "lucide-react";
 import Image from "next/image";
@@ -12,12 +12,12 @@ type AnimalCardProps = {
 };
 
 const speciesConfig = {
-  DOG: { label: "Chien", icon: Dog, gradient: "from-amber-100 to-orange-200" },
-  CAT: { label: "Chat", icon: Cat, gradient: "from-violet-100 to-purple-200" },
+  DOG: { label: "Chien", icon: Dog, gradient: "from-orange-100 to-orange-200" },
+  CAT: { label: "Chat", icon: Cat, gradient: "from-rose-100 to-pink-200" },
   OTHER: {
     label: "Autre",
     icon: PawPrint,
-    gradient: "from-emerald-100 to-teal-200",
+    gradient: "from-violet-100 to-purple-200",
   },
 };
 
@@ -33,28 +33,29 @@ export function AnimalCard({ animal, onClick }: AnimalCardProps) {
 
   return (
     <Card
-      className="group cursor-pointer overflow-hidden border-0 shadow-sm pt-0 gap-2"
+      className="group cursor-pointer overflow-hidden border-0 shadow-sm pt-0"
       onClick={onClick}
     >
-      <div
-        className={`relative h-52 w-full bg-gradient-to-br ${species.gradient} overflow-hidden`}
-      >
+      <CardContent className="px-0 pb-0">
         {animal.imageUrl ? (
-          <Image
-            src={animal.imageUrl}
-            alt={animal.name}
-            fill
-            className="object-cover"
-            style={{ objectFit: "cover" }}
-            sizes="(max-width: 768px) 100vw, 400px"
-          />
+          <div className="relative aspect-[4/3] w-full">
+            <Image
+              src={animal.imageUrl}
+              alt={animal.name}
+              fill
+              className="rounded-t-xl object-cover object-top"
+              sizes="(max-width: 768px) 100vw, 400px"
+            />
+          </div>
         ) : (
-          <div className="flex h-full items-center justify-center">
+          <div
+            className={`flex aspect-[4/3] w-full items-center justify-center rounded-t-xl bg-gradient-to-br ${species.gradient}`}
+          >
             <SpeciesIcon className="h-16 w-16 text-gray-600/40 transition-transform" />
           </div>
         )}
-      </div>
-      <CardContent className="space-y-1 p-4">
+      </CardContent>
+      <CardHeader className="space-y-1">
         <div className="flex items-center gap-2 justify-between">
           <h3 className="text-lg font-semibold tracking-tight">
             {animal.name}
@@ -63,10 +64,14 @@ export function AnimalCard({ animal, onClick }: AnimalCardProps) {
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <span>{species.label}</span>
-          <span className="text-xs">•</span>
-          <span>{animal.type}</span>
+          {animal.type && (
+            <>
+              <span className="text-xs">•</span>
+              <span>{animal.type}</span>
+            </>
+          )}
         </div>
-      </CardContent>
+      </CardHeader>
     </Card>
   );
 }

@@ -10,9 +10,14 @@ import { columns } from "./animal-columns";
 type AnimalDataTableProps = {
   animals: AnimalsType;
   role: UserRole;
+  createButton?: React.ReactNode;
 };
 
-export function AnimalDataTable({ animals, role }: AnimalDataTableProps) {
+export function AnimalDataTable({
+  animals,
+  role,
+  createButton,
+}: AnimalDataTableProps) {
   return (
     <DataTable
       columns={columns}
@@ -29,6 +34,7 @@ export function AnimalDataTable({ animals, role }: AnimalDataTableProps) {
           key={selected.id}
         />
       )}
+      createButton={createButton}
     />
   );
 }

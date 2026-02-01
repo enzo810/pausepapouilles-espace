@@ -1,5 +1,6 @@
 import { CreateAnimalDialog } from "@/components/create-animal-dialog";
 import ServerError from "@/components/ServerError";
+import { Badge } from "@/components/ui/badge";
 import { getSession } from "@/lib/auth-server";
 import { getAnimals } from "@/server/actions/animal.action";
 import { getUsers } from "@/server/actions/user.action";
@@ -32,9 +33,27 @@ export default async function AnimalPage() {
   return (
     session && (
       <>
-        <CreateAnimalDialog />
+        <div className="flex flex-col gap-6">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <div className="flex items-center gap-3">
+                <h2 className="text-2xl font-bold tracking-tight">
+                  Vos Animaux
+                </h2>
+                <Badge variant="secondary">{animals.length}</Badge>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Gérez les animaux de votre profil
+              </p>
+            </div>
+          </div>
+        </div>
         <HydrationBoundary state={dehydrate(queryClient)}>
-          <AnimalDataTable animals={animals} role={session.user.role} />
+          <AnimalDataTable
+            animals={animals}
+            role={session.user.role}
+            createButton={<CreateAnimalDialog />}
+          />
         </HydrationBoundary>
       </>
     )
