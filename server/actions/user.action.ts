@@ -59,6 +59,11 @@ export const deleteUser = adminAction
   .inputSchema(z.object({ id: z.string() }))
   .action(async ({ ctx, parsedInput: { id } }) => {
     try {
+      await auth.api.revokeUserSessions({
+        body: { userId: id },
+        headers: await headers(),
+      });
+
       await auth.api.removeUser({
         body: { userId: id },
         headers: await headers(),
