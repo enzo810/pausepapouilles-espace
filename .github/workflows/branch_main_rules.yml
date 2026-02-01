@@ -19,10 +19,10 @@ jobs:
           echo "Source branch: $SOURCE_BRANCH"
           echo "Target branch: $TARGET_BRANCH"
 
-          if [[ "$TARGET_BRANCH" == "main" && ( "$SOURCE_BRANCH" == "staging-a" || "$SOURCE_BRANCH" == "staging-b" ) ]]; then
+          if [[ "$TARGET_BRANCH" == "main" && "$SOURCE_BRANCH" == "staging-a" ]]; then
             echo "✅ PR autorisée depuis $SOURCE_BRANCH vers main"
             exit 0
           else
-            echo "❌ PR refusée : seules les branches staging-a et staging-b peuvent merger vers main"
+            echo "❌ PR refusée : seules la branche staging-a peut merger vers main"
             exit 1
           fi
