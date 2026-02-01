@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Pause Papouilles Espace",
+  title: "Espace - Pause Papouilles",
   description: "Espace Pause Papouilles",
 };
 
