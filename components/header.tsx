@@ -6,7 +6,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { auth } from "@/lib/auth";
 import { User } from "@/lib/auth-client";
-import { cn } from "@/lib/utils";
 import { LogOut, PawPrint, User2, Users } from "lucide-react";
 import { Luckiest_Guy } from "next/font/google";
 import { headers } from "next/headers";
@@ -14,7 +13,6 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import Logo from "./logo";
 import { Avatar, AvatarFallback } from "./ui/avatar";
-import { buttonVariants } from "./ui/button";
 
 const luckiestGuy = Luckiest_Guy({ weight: "400", subsets: ["latin"] });
 
@@ -30,21 +28,13 @@ export const Header = ({ user }: { user: User }) => {
       <nav className="flex items-center gap-2">
         <Link
           href="/animal"
-          className={cn(
-            buttonVariants({ variant: "outlineNav" }),
-            "flex items-center gap-2 outline-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
-          )}
+          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium h-9 px-4 py-2 border bg-background shadow-xs cursor-pointer outline-none"
         >
           <PawPrint className="size-4" />
           Animaux
         </Link>
         <DropdownMenu>
-          <DropdownMenuTrigger
-            className={cn(
-              buttonVariants({ variant: "outlineNav" }),
-              "flex items-center gap-2 cursor-pointer outline-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
-            )}
-          >
+          <DropdownMenuTrigger className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium h-9 px-4 py-2 border bg-background shadow-xs cursor-pointer outline-none">
             <Avatar className="size-6">
               <AvatarFallback>{user.email[0].toUpperCase()}</AvatarFallback>
             </Avatar>
