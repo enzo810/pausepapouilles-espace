@@ -326,7 +326,7 @@ export function AnimalForm({ setOpen, animal, userId, type }: AnimalFormProps) {
                 <div className="space-y-0.5">
                   <FormLabel>Identifié (puce/tatouage)</FormLabel>
                   <FormDescription>
-                    L'animal est-il identifié par une puce ou un tatouage ?
+                    L&apos;animal est-il identifié par une puce ou un tatouage ?
                   </FormDescription>
                 </div>
                 <FormControl>
@@ -547,7 +547,7 @@ export function AnimalForm({ setOpen, animal, userId, type }: AnimalFormProps) {
                 <div className="space-y-0.5">
                   <FormLabel>Problèmes de santé</FormLabel>
                   <FormDescription>
-                    L'animal a-t-il des problèmes de santé ?
+                    L&apos;animal a-t-il des problèmes de santé ?
                   </FormDescription>
                 </div>
                 <FormControl>
@@ -657,7 +657,7 @@ export function AnimalForm({ setOpen, animal, userId, type }: AnimalFormProps) {
             name="imageUrl"
             render={() => (
               <FormItem>
-                <FormLabel>Photo de l'animal</FormLabel>
+                <FormLabel>Photo de l&apos;animal</FormLabel>
                 <FormControl>
                   <Input {...inputRef} type="file" accept="image/*" />
                 </FormControl>

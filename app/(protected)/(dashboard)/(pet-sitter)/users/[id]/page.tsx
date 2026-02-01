@@ -60,7 +60,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
       <div className="flex flex-col">
         <div className="space-y-1">
           <h2 className="text-2xl font-bold tracking-tight">
-            Informations de l'utilisateur
+            Informations de l&apos;utilisateur
           </h2>
           <Breadcrumb>
             <BreadcrumbList>
@@ -84,7 +84,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
         )}
         <Card className="mb-12">
           <CardHeader className="sr-only">
-            <CardTitle>Informations de l'utilisateur</CardTitle>
+            <CardTitle>Informations de l&apos;utilisateur</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <InfoRow label="Prénom" value={user.firstname} icon={User} />

@@ -140,7 +140,9 @@ export function Animal({ animal }: AnimalProps) {
               <CardTitle className="text-base">
                 Informations générales
               </CardTitle>
-              <CardDescription>Détails de base de l'animal</CardDescription>
+              <CardDescription>
+                Détails de base de l&apos;animal
+              </CardDescription>
             </CardHeader>
             <CardContent className="grid gap-3">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -314,7 +316,7 @@ export function Animal({ animal }: AnimalProps) {
             <CardHeader className="pb-2">
               <CardTitle className="text-base">Notes supplémentaires</CardTitle>
               <CardDescription>
-                Informations complémentaires sur l'animal
+                Informations complémentaires sur l&apos;animal
               </CardDescription>
             </CardHeader>
             <CardContent>
